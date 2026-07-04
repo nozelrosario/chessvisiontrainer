@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chess Coordinate Pro Trainer</title>
+    <style>
+        :root {
+            --light-square: #eeeed2;
+            --dark-square: #769656;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #f5f5f5;
+            --accent-color: #4caf50;
+            --penalty-color: #f44336;
+            
+            /* Responsive fluid sizing calculations */
+            --square-size: clamp(34px, 9.5vw, 60px);
+            --label-size: clamp(20px, 5vw, 30px);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: clamp(20px, 6vw, 28px);
+            margin: 5px 0 10px 0;
+            text-align: center;
+            background: linear-gradient(45deg, #ffeb3b, #4caf50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 510px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .control-group label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            color: #aaa;
+        }
+
+        .pro-group {
+            flex: 0;
+            min-width: 65px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pro-switch {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .pro-switch input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ffeb3b;
+        }
+
+        .pro-label-text {
+            font-weight: bold;
+            color: #ffeb3b;
+            font-size: 14px;
+        }
+
+        select, button, input[type="text"] {
+            padding: 10px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            background-color: #444;
+            color: white;
+            outline: none;
+            width: 100%;
+        }
+
+        input[type="text"]:focus {
+            background-color: #555;
+            border: 1px solid var(--accent-color);
+        }
+
+        button.action-btn {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            min-width: 100px;
+            box-shadow: 0 3px 6px rgba(76, 175, 80, 0.3);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        button.action-btn:active {
+            transform: scale(0.97);
+        }
+
+        button.secondary-btn {
+            background: #555;
+            font-size: 12px;
+            padding: 6px var(--label-size);
+            margin-top: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button.secondary-btn:active {
+            background: #666;
+        }
+
+        .score-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 510px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 2px;
+            word-break: break-word;
+        }
+
+        #score {
+            font-size: 20px;
+            color: #fff;
+        }
+
+        #prompt {
+            font-size: clamp(24px, 7vw, 32px);
+            color: #ffeb3b;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 5px;
+            min-height: 38px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #feedback {
+            font-size: 14px;
+            min-height: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.2s;
+            max-width: 90vw;
+        }
+
+        /* Responsive Chessboard Container */
+        .board-container {
+            display: grid;
+            grid-template-columns: var(--label-size) repeat(8, var(--square-size));
+            grid-template-rows: repeat(8, var(--square-size)) var(--label-size);
+            border: 4px solid #333;
+            border-radius: 6px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+            background-color: #2a2a2a;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .square {
+            width: var(--square-size);
+            height: var(--square-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .light { background-color: var(--light-square); }
+        .dark { background-color: var(--dark-square); }
+
+        .label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #888;
+            font-size: clamp(11px, 3.5vw, 14px);
+            transition: opacity 0.2s ease;
+        }
+
+        .board-container.pro-mode-active .label {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Modal Popup UI */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid #444;
+        }
+
+        .modal-card h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #ffeb3b;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-divider {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #777;
+            letter-spacing: 2px;
+        }
+
+        /* Visual Polish Animations */
+        .correct-flash {
+            background-color: #4caf50 !important;
+            animation: flash-glow 0.3s ease-out;
+        }
+
+        .wrong-flash {
+            background-color: #f44336 !important;
+            animation: flash-glow 0.3s ease-out;
+        }
+
+        @keyframes flash-glow {
+            0% { filter: brightness(1.5); }
+            100% { filter: brightness(1); }
+        }
+
+        .animate-pop {
+            animation: score-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes score-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .timer-panic {
+            color: var(--penalty-color) !important;
+            animation: pulse-panic 0.8s infinite alternate;
+        }
+
+        @keyframes pulse-panic {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Chess Vision Trainer</h1>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="gameMode">Level</label>
+            <select id="gameMode">
+                <option value="columns">1: Columns (a-h)</option>
+                <option value="full">2: Full Grid</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="timerMode">Timer</label>
+            <select id="timerMode">
+                <option value="none">Untimed</option>
+                <option value="30">30s Blitz</option>
+                <option value="60">60s Standard</option>
+            </select>
+        </div>
+
+        <div class="control-group pro-group">
+            <label>Mode</label>
+            <label class="pro-switch">
+                <input type="checkbox" id="proMode">
+                <span class="pro-label-text">PRO</span>
+            </label>
+        </div>
+
+        <button id="startBtn" class="action-btn">Start</button>
+    </div>
+
+    <div class="score-board">
+        <div class="stat-card">
+            <div id="userLabel" class="stat-label">Player</div>
+            <div id="activeUser" class="stat-value">---</div>
+            <button id="switchUserBtn" class="secondary-btn">Switch</button>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Score</div>
+            <div id="score" class="stat-value">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">High Score</div>
+            <div id="highScore" class="stat-value">0</div>
+        </div>
+    </div>
+
+    <div id="prompt">Tap Start!</div>
+    <div id="feedback">Ready to practice?</div>
+
+    <div class="board-container" id="board"></div>
+
+    <div id="userModal" class="modal-overlay">
+        <div class="modal-card">
+            <h2>Select Profile</h2>
+            
+            <div class="control-group">
+                <label for="existingUsersSelect">Saved Users</label>
+                <select id="existingUsersSelect"></select>
+            </div>
+
+            <div class="modal-divider">or</div>
+
+            <div class="control-group">
+                <label for="newUsernameInput">Create New Profile</label>
+                <input type="text" id="newUsernameInput" placeholder="Enter name..." maxlength="12">
+            </div>
+
+            <button id="modalConfirmBtn" class="action-btn" style="margin-top: 20px;">Save & Play</button>
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const startBtn = document.getElementById('startBtn');
+        const gameModeSelect = document.getElementById('gameMode');
+        const timerModeSelect = document.getElementById('timerMode');
+        const proModeCheck = document.getElementById('proMode');
+        const scoreDisplay = document.getElementById('score');
+        const highScoreDisplay = document.getElementById('highScore');
+        const promptDisplay = document.getElementById('prompt');
+        const feedbackDisplay = document.getElementById('feedback');
+        
+        // Profile Management Elements
+        const userModal = document.getElementById('userModal');
+        const existingUsersSelect = document.getElementById('existingUsersSelect');
+        const newUsernameInput = document.getElementById('newUsernameInput');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const activeUserDisplay = document.getElementById('activeUser');
+        const switchUserBtn = document.getElementById('switchUserBtn');
+        const userLabelCard = document.getElementById('userLabel');
+
+        const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+
+        let score = 0;
+        let currentPrompt = '';
+        let isPlaying = false;
+        let timerInterval = null;
+        let timeLeft = 0;
+        let currentUser = 'Guest';
+        let allUsers = ['Guest'];
+
+        const positivePhrases = ["Magnus would be proud!", "Excellent vision!", "Spot on!", "Genius!", "Speedy calculations! ⚡"];
+        const motivationPhrases = ["Shake it off, try again!", "Keep pushing your boundaries!", "Consistency beats talent!", "Almost had it! Keep practicing."];
+
+        function generateBoard() {
+            board.innerHTML = '';
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (r < 8 && c === 0) {
+                        const rankLabel = document.createElement('div');
+                        rankLabel.className = 'label';
+                        rankLabel.innerText = ranks[r];
+                        board.appendChild(rankLabel);
+                    } else if (r === 8 && c > 0) {
+                        const fileLabel = document.createElement('div');
+                        fileLabel.className = 'label';
+                        fileLabel.innerText = files[c - 1];
+                        board.appendChild(fileLabel);
+                    } else if (r === 8 && c === 0) {
+                        const emptyLabel = document.createElement('div');
+                        emptyLabel.className = 'label';
+                        board.appendChild(emptyLabel);
+                    } else {
+                        const square = document.createElement('div');
+                        const file = files[c - 1];
+                        const rank = ranks[r];
+                        const isLight = (r + (c - 1)) % 2 === 0;
+                        
+                        square.className = `square ${isLight ? 'light' : 'dark'}`;
+                        square.dataset.file = file;
+                        square.dataset.coord = file + rank;
+                        
+                        square.addEventListener('click', handleSquareClick);
+                        board.appendChild(square);
+                    }
+                }
+            }
+        }
+
+        function getScoreKeySuffix() {
+            const level = gameModeSelect.value;
+            const proStatus = proModeCheck.checked ? 'pro' : 'standard';
+            const timerSetting = timerModeSelect.value;
+            return `_${level}_${proStatus}_t${timerSetting}`;
+        }
+
+        function getGlobalHighScoreDetails() {
+            const suffix = getScoreKeySuffix();
+            let topScore = 0;
+            let topOwner = 'None';
+
+            allUsers.forEach(user => {
+                const userScore = parseInt(localStorage.getItem(`chess_user_score_${user}${suffix}`)) || 0;
+                if (userScore > topScore) {
+                    topScore = userScore;
+                    topOwner = user;
+                }
+            });
+
+            return { score: topScore, owner: topOwner };
+        }
+
+        function updateHighScoreView() {
+            const globalBest = getGlobalHighScoreDetails();
+            if (globalBest.score === 0) {
+                highScoreDisplay.innerText = "0";
+            } else {
+                const displayName = globalBest.owner === currentUser ? "You" : globalBest.owner;
+                highScoreDisplay.innerText = `${globalBest.score} (${displayName})`;
+            }
+        }
+
+        function evaluateLiveProgress(currentRunningScore) {
+            const globalBest = getGlobalHighScoreDetails();
+            const suffix = getScoreKeySuffix();
+            
+            if (globalBest.score > 0 && currentRunningScore > globalBest.score && globalBest.owner !== currentUser) {
+                return `🔥 UNSTOPPABLE! You just beat ${globalBest.owner}'s record! 🔥`;
+            }
+            if (globalBest.score > 0 && currentRunningScore === globalBest.score && globalBest.owner !== currentUser) {
+                return `👑 Tied with ${globalBest.owner} for the crown! Next point wins! 👑`;
+            }
+            if (globalBest.score > 0 && currentRunningScore < globalBest.score && (globalBest.score - currentRunningScore) <= 20) {
+                return `🚀 Just ${globalBest.score - currentRunningScore} pts away from beating ${globalBest.owner}!`;
+            }
+            
+            let overtakenTarget = null;
+            for (let i = 0; i < allUsers.length; i++) {
+                const u = allUsers[i];
+                if (u !== currentUser) {
+                    const uScore = parseInt(localStorage.getItem(`chess_user_score_${u}${suffix}`)) || 0;
+                    if (uScore > 0 && currentRunningScore === uScore + 10) {
+                        overtakenTarget = u;
+                        break;
+                    }
+                }
+            }
+            if (overtakenTarget) {
+                return `⚡ Boom! You just passed ${overtakenTarget}'s score!`;
+            }
+
+            return positivePhrases[Math.floor(Math.random() * positivePhrases.length)];
+        }
+
+        function initializeProfiles() {
+            const storedUsers = localStorage.getItem('chess_trainer_profiles');
+            if (storedUsers) {
+                allUsers = JSON.parse(storedUsers);
+            } else {
+                allUsers = ['Guest'];
+                localStorage.setItem('chess_trainer_profiles', JSON.stringify(allUsers));
+            }
+            
+            const savedProfile = localStorage.getItem('chess_trainer_current_profile');
+            populateModalDropdown();
+
+            // Automatic Modal Trigger: Opens up if no historical profile cookie/session exists
+            if (!savedProfile) {
+                currentUser = allUsers[0];
+                activeUserDisplay.innerText = currentUser;
+                setTimeout(showUserModal, 150); 
+            } else {
+                currentUser = allUsers.includes(savedProfile) ? savedProfile : allUsers[0];
+                activeUserDisplay.innerText = currentUser;
+            }
+        }
+
+        function populateModalDropdown() {
+            existingUsersSelect.innerHTML = '';
+            allUsers.forEach(user => {
+                const opt = document.createElement('option');
+                opt.value = user;
+                opt.innerText = user;
+                if (user === currentUser) opt.selected = true;
+                existingUsersSelect.appendChild(opt);
+            });
+        }
+
+        function showUserModal() {
+            if (isPlaying) endGame();
+            newUsernameInput.value = '';
+            populateModalDropdown();
+            userModal.classList.add('active');
+        }
+
+        function handleModalConfirm() {
+            let selectedUser = existingUsersSelect.value;
+            const newName = newUsernameInput.value.trim();
+
+            if (newName !== "") {
+                if (allUsers.includes(newName)) {
+                    selectedUser = newName;
+                } else {
+                    allUsers.push(newName);
+                    localStorage.setItem('chess_trainer_profiles', JSON.stringify(allUsers));
+                    selectedUser = newName;
+                }
+            }
+
+            currentUser = selectedUser;
+            localStorage.setItem('chess_trainer_current_profile', currentUser);
+            activeUserDisplay.innerText = currentUser;
+            
+            userModal.classList.remove('active');
+            updateHighScoreView();
+        }
+
+        function startGame() {
+            clearInterval(timerInterval);
+            userLabelCard.innerText = timerModeSelect.value !== 'none' ? "Time" : "Player";
+            
+            score = 0;
+            isPlaying = true;
+            scoreDisplay.innerText = score;
+            feedbackDisplay.innerText = proModeCheck.checked ? "Pro Mode Active! Trust your spatial grid memory." : "Find them fast!";
+            feedbackDisplay.style.color = '#fff';
+            
+            const timerSetting = timerModeSelect.value;
+            if (timerSetting !== 'none') {
+                timeLeft = parseInt(timerSetting, 10);
+                activeUserDisplay.innerText = timeLeft + 's';
+                activeUserDisplay.classList.remove('timer-panic');
+                timerInterval = setInterval(updateTimer, 1000);
+            } else {
+                activeUserDisplay.innerText = currentUser;
+                activeUserDisplay.classList.remove('timer-panic');
+            }
+
+            nextQuestion();
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            if (timeLeft <= 5) {
+                activeUserDisplay.classList.add('timer-panic');
+            }
+            if (timeLeft <= 0) {
+                activeUserDisplay.innerText = '0s';
+                endGame();
+            } else {
+                activeUserDisplay.innerText = timeLeft + 's';
+            }
+        }
+
+        function endGame() {
+            isPlaying = false;
+            clearInterval(timerInterval);
+            activeUserDisplay.classList.remove('timer-panic');
+            activeUserDisplay.innerText = currentUser;
+            userLabelCard.innerText = "Player";
+            promptDisplay.innerText = "Game Over!";
+            
+            const suffix = getScoreKeySuffix();
+            const personalRecordKey = `chess_user_score_${currentUser}${suffix}`;
+            const personalBest = parseInt(localStorage.getItem(personalRecordKey)) || 0;
+            
+            if (score > personalBest) {
+                localStorage.setItem(personalRecordKey, score);
+            }
+
+            const globalBest = getGlobalHighScoreDetails();
+            if (score >= globalBest.score && score > 0) {
+                feedbackDisplay.innerText = `👑 Match Complete! Top of the leaderboard with ${score}!`;
+                feedbackDisplay.style.color = '#ffeb3b';
+                triggerElementPop(highScoreDisplay);
+            } else {
+                const randomMotivation = motivationPhrases[Math.floor(Math.random() * motivationPhrases.length)];
+                feedbackDisplay.innerText = `Finished! Score: ${score}. ${randomMotivation}`;
+                feedbackDisplay.style.color = '#aaa';
+            }
+            
+            updateHighScoreView();
+        }
+
+        function nextQuestion() {
+            if (!isPlaying) return;
+            const mode = gameModeSelect.value;
+            
+            if (mode === 'columns') {
+                const randomFile = files[Math.floor(Math.random() * files.length)];
+                currentPrompt = randomFile;
+                promptDisplay.innerText = `Column: ${randomFile.toUpperCase()}`;
+            } else {
+                const randomFile = files[Math.floor(Math.random() * files.length)];
+                const randomRank = ranks[Math.floor(Math.random() * ranks.length)];
+                currentPrompt = randomFile + randomRank;
+                promptDisplay.innerText = `Square: ${currentPrompt.toUpperCase()}`;
+            }
+        }
+
+        function handleSquareClick(e) {
+            if (!isPlaying) return;
+
+            const clickedSquare = e.target;
+            const clickedFile = clickedSquare.dataset.file;
+            const clickedCoord = clickedSquare.dataset.coord;
+            const mode = gameModeSelect.value;
+            
+            let isCorrect = (mode === 'columns') ? (clickedFile === currentPrompt) : (clickedCoord === currentPrompt);
+
+            if (isCorrect) {
+                score += 10;
+                feedbackDisplay.innerText = evaluateLiveProgress(score);
+                feedbackDisplay.style.color = 'var(--accent-color)';
+                triggerElementPop(scoreDisplay);
+                
+                if (mode === 'columns') {
+                    flashTargetGroup(`[data-file="${clickedFile}"]`, 'correct-flash');
+                } else {
+                    flashTargetGroup(`[data-coord="${clickedCoord}"]`, 'correct-flash');
+                }
+                nextQuestion();
+            } else {
+                score = Math.max(0, score - 5);
+                feedbackDisplay.innerText = `Oops, that was ${clickedCoord.toUpperCase()} (-5)`;
+                feedbackDisplay.style.color = 'var(--penalty-color)';
+                triggerElementPop(scoreDisplay);
+                
+                if (mode === 'columns') {
+                    flashTargetGroup(`[data-file="${clickedFile}"]`, 'wrong-flash');
+                } else {
+                    flashTargetGroup(`[data-coord="${clickedCoord}"]`, 'wrong-flash');
+                }
+            }
+
+            scoreDisplay.innerText = score;
+        }
+
+        function flashTargetGroup(selector, className) {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                el.classList.add(className);
+                setTimeout(() => el.classList.remove(className), 250);
+            });
+        }
+
+        function triggerElementPop(element) {
+            element.classList.remove('animate-pop');
+            void element.offsetWidth; 
+            element.classList.add('animate-pop');
+        }
+
+        // Programmatic Obfuscated Signature System
+        (function injectSecureFooter() {
+            const bytecode = [99,114,101,97,116,101,100,32,98,121,32,78,111,122,101,108,32,82,111,115,97,114,105,111];
+            const footerEl = document.createElement('footer');
+            footerEl.innerText = String.fromCharCode(...bytecode);
+            footerEl.style.cssText = 'font-size: 9px; color: #555; margin-top: 25px; text-align: center; letter-spacing: 0.5px; user-select: none; opacity: 0.6; padding-bottom: 10px;';
+            document.body.appendChild(footerEl);
+        })();
+
+        // Event Hook Assignments
+        startBtn.addEventListener('click', startGame);
+        switchUserBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showUserModal();
+        });
+        modalConfirmBtn.addEventListener('click', handleModalConfirm);
+
+        gameModeSelect.addEventListener('change', () => {
+            updateHighScoreView();
+            if(isPlaying) endGame();
+        });
+        
+        timerModeSelect.addEventListener('change', () => {
+            updateHighScoreView();
+            if(isPlaying) endGame();
+        });
+
+        proModeCheck.addEventListener('change', () => {
+            if (proModeCheck.checked) {
+                board.classList.add('pro-mode-active');
+            } else {
+                board.classList.remove('pro-mode-active');
+            }
+            updateHighScoreView();
+            if(isPlaying) endGame(); 
+        });
+
+        // Initialize App
+        generateBoard();
+        initializeProfiles();
+        updateHighScoreView();
+    </script>
+</body>
+</html>
