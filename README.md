@@ -28,35 +28,222 @@ A fun, interactive web-based tool to improve chess coordinate recognition and sp
   - Score pop animations
   - Timer panic mode (red highlight at 5 seconds)
 
-## 🚀 How to Play
+## 🚀 Getting Started
 
-1. **Open `index.html`** in any modern web browser (no installation needed)
-2. **Create or Select a Profile** using the modal dialog
-3. **Choose Your Difficulty:**
-   - Select Level (Columns or Full Grid)
-   - Select Timer (Untimed, 30s, or 60s)
-   - Toggle Pro Mode for extra challenge
-4. **Tap "Start"** to begin
-5. **Click the highlighted square/column** shown at the top
-6. **Earn points** for correct answers (+10 points) and lose points for mistakes (-5 points)
-7. **Beat your high score** and compete with other players!
+### Step 1: Launch the Game
+Simply open `index.html` in any modern web browser. No installation, no server setup needed!
 
-## 📊 Score System
+```bash
+# Option A: Direct file open
+open index.html
 
-- ✅ **Correct Answer:** +10 points
-- ❌ **Wrong Answer:** -5 points
-- Scores are **tracked per player** and **per game mode** combination
-- High scores persist across browser sessions via localStorage
+# Option B: Local server (optional)
+python -m http.server 8000
+# Then visit http://localhost:8000/index.html
+```
 
-## 🎯 Game Modes & Variations
+### Step 2: Create Your Profile
+When you first launch the game, a profile selection modal appears:
+- **Select from saved profiles** using the dropdown
+- **Or create a new profile** by entering a name (up to 12 characters)
+- Click **"Save & Play"** to continue
 
-| Level | Description | Difficulty |
-|-------|-------------|-----------|
-| Columns (L1) | Identify only the file (a-h) | Easy |
-| Full Grid (L2) | Identify exact coordinate (a1-h8) | Medium/Hard |
-| + Pro Mode | Hide board labels (any level) | +Difficulty |
-| + 30s Blitz | Time-based challenge | Speed Focus |
-| + 60s Standard | Extended practice session | Endurance Focus |
+Your profile persists across browser sessions, so your high scores are saved!
+
+### Step 3: Configure Game Settings
+Before starting, customize your game:
+
+| Setting | Options | Effect |
+|---------|---------|--------|
+| **Level** | Columns / Full Grid | Columns = easier (files only), Full Grid = harder (exact coordinates) |
+| **Timer** | Untimed / 30s / 60s | No timer for practice, or speed challenges |
+| **Mode** | Standard / PRO | PRO hides board labels for pure memory |
+
+### Step 4: Click "Start" and Play!
+
+## 📚 How to Play - Detailed Guide
+
+### Game Flow
+
+1. **You'll see a prompt at the top** showing what to find:
+   - In **Columns mode**: "Column: D" — find and click any square in that column
+   - In **Full Grid mode**: "Square: E4" — find and click that exact square
+
+2. **Click the correct square** on the board
+   - The board is labeled with files (a-h, left to right) and ranks (1-8, bottom to top)
+   - Use these labels to locate the correct square
+
+3. **Get instant feedback:**
+   - ✅ **Correct:** Square flashes green, you earn **+10 points**, next question appears immediately
+   - ❌ **Wrong:** Square flashes red, you lose **-5 points**, same question repeats
+   - Encouraging messages appear after each answer
+
+4. **Beat your high score** by getting as many consecutive correct answers as possible
+
+### Example Gameplay
+
+**Scenario 1: Columns Mode**
+```
+Prompt shown: "Column: F"
+Your task: Click any square in the F file (6th column from left)
+Result: ✅ Click F5 → +10 points → Next question
+        ❌ Click G3 → -5 points → "Find column F again"
+```
+
+**Scenario 2: Full Grid Mode**
+```
+Prompt shown: "Square: H7"
+Your task: Click the exact intersection of H file and 7 rank
+Result: ✅ Click H7 → +10 points → Next question
+        ❌ Click H6 → -5 points → "Try again"
+```
+
+**Scenario 3: Pro Mode (Full Grid)**
+```
+All board labels are hidden!
+Prompt: "Square: C3"
+You must rely on pure spatial memory to locate it
+The board gets tricky without the helpful a-h and 1-8 labels
+```
+
+## 📊 Scoring Explained
+
+### Point System
+- **+10 points** for every correct answer
+- **-5 points** for every wrong answer
+- Score never goes below 0
+- Scores reset for each new game
+
+### High Score Tracking
+- Each player has **independent scores** for every mode combination:
+  - Columns + Untimed
+  - Columns + 30s Blitz
+  - Columns + 60s Standard
+  - Full Grid + Untimed
+  - Full Grid + 30s Blitz
+  - Full Grid + 60s Standard
+  - + Pro Mode variants (12 total combinations!)
+  
+- High score displays **best player's name** if you haven't beaten it yet
+- Shows **"You"** if it's your personal record
+
+### Example Score Scenarios
+```
+Your session:
+- Q1: Correct → Score: 10
+- Q2: Correct → Score: 20
+- Q3: Wrong → Score: 15
+- Q4: Correct → Score: 25
+- Timer ends → Final Score: 25
+- This becomes your high score if it beats your previous best!
+```
+
+## 🎯 Game Modes & Difficulty Levels
+
+| Mode | Level | Timer | Difficulty | Best For |
+|------|-------|-------|-----------|----------|
+| **Columns** | 1 | Untimed | ⭐ Easy | Learning the files (a-h) |
+| **Columns** | 1 | 30s Blitz | ⭐⭐ Medium | Speed training |
+| **Columns + Pro** | 1 | Untimed | ⭐⭐ Medium | Memory without labels |
+| **Full Grid** | 2 | Untimed | ⭐⭐ Medium | Learning coordinates |
+| **Full Grid** | 2 | 30s Blitz | ⭐⭐⭐ Hard | Speed & accuracy |
+| **Full Grid + Pro** | 2 | 60s Standard | ⭐⭐⭐ Hard | Advanced memory training |
+
+### Recommended Learning Path
+```
+Start here ↓
+Columns + Untimed (master a-h files)
+         ↓
+Columns + 30s Blitz (speed the files up)
+         ↓
+Columns + Pro + Untimed (memorize without labels)
+         ↓
+Full Grid + Untimed (learn exact squares)
+         ↓
+Full Grid + 30s Blitz (speed test full board)
+         ↓
+Full Grid + Pro + 60s (ultimate challenge!)
+```
+
+## 🎮 UI Elements Explained
+
+### Control Panel (Top Section)
+- **Level dropdown:** Choose Columns or Full Grid
+- **Timer dropdown:** Choose Untimed, 30s, or 60s
+- **PRO checkbox:** Toggle board labels on/off
+- **Start button:** Begin a new game
+
+### Score Board (Three Cards)
+- **Left card:** Player name (or countdown timer if timer mode active)
+  - "Switch" button: Change to a different player profile
+- **Middle card:** Current game score (updates in real-time)
+- **Right card:** High score for this mode (shows owner's name)
+
+### Game Display
+- **Yellow text (top):** Current prompt ("Column: A", "Square: E4", etc.)
+- **White text:** Feedback message (encouragement or correction)
+- **Chessboard:** 8x8 grid with labeled coordinates
+  - Light squares: #eeeed2 (cream)
+  - Dark squares: #769656 (olive green)
+  - Click squares to answer
+
+### Feedback Messages
+- ✅ **Correct:** "Excellent vision!", "Spot on!", "Genius!", "Magnus would be proud!", "Speedy calculations! ⚡"
+- ❌ **Wrong:** "Oops, that was [square] (-5)", then shows which square you clicked
+- 🔥 **Competitive:** "You just beat Sarah's record!", "Tied with Alex!", "Just 5 pts away!"
+- 👑 **Victory:** "Top of the leaderboard with 120!"
+
+## ⏱️ Timer Modes
+
+### Untimed Mode
+- No pressure, unlimited time
+- Perfect for learning and building confidence
+- Score accumulates as long as you play
+
+### 30s Blitz
+- Fast-paced challenge
+- Tests reflexes and quick recognition
+- Great for speed training
+
+### 60s Standard
+- Extended session
+- Allows more questions (typically 6-12 depending on speed)
+- Good for endurance and consistency
+
+**Timer Mechanics:**
+- Counter shows remaining time in top-left (Time card)
+- At 5 seconds remaining: **PANIC MODE** activates
+  - Timer text turns red and pulses
+  - Get ready—game ends at 0s!
+- When time runs out: Game automatically ends, score is saved
+
+## 💡 Strategy & Tips
+
+### For Beginners (Columns Mode)
+1. Learn the **file order left-to-right:** a, b, c, d, e, f, g, h
+2. Start **untimed** to focus on accuracy, not speed
+3. Repeat games to build muscle memory
+4. Once comfortable, try **30s Blitz** to add pressure
+
+### For Intermediate Players (Full Grid Mode)
+1. Understand **rank system:** 1 (bottom) to 8 (top)
+2. Practice combining **files + ranks** (e.g., e4 = e file + 4 rank)
+3. Use landmarks: center squares (d4, e4, d5, e5) as reference points
+4. Try **Untimed** first, then gradually add time pressure
+
+### For Advanced Players (Pro Mode)
+1. **Remove visual crutches** by enabling Pro Mode
+2. Visualize the board **in your mind's eye** without labels
+3. Use **60s Standard** to test endurance
+4. Compete on leaderboards against other players
+5. Track your **personal bests** across all modes
+
+### General Tips
+- **Take breaks** to maintain focus and accuracy
+- **Play daily** for best results—consistency beats talent!
+- **Challenge friends** by creating separate profiles and comparing scores
+- **Don't memorize randomly**—think about coordinate patterns
+- **Celebrate milestones**—each high score is progress!
 
 ## 🛠️ Technical Details
 
@@ -98,14 +285,6 @@ All data is stored locally in your browser (localStorage):
 
 **Note:** Clearing browser cache will reset all data. Export scores manually if needed.
 
-## ✨ Tips for Success
-
-1. **Start with Columns mode** to learn the files (a-h) from left to right
-2. **Practice without timer first** to build muscle memory
-3. **Enable Pro Mode** only after mastering the board layout
-4. **Use 30s Blitz** to train speed and reflexes
-5. **Create player profiles** to track progress against friends
-
 ## 🐛 Troubleshooting
 
 **Scores not saving?**
@@ -119,6 +298,14 @@ All data is stored locally in your browser (localStorage):
 **Profile data missing?**
 - Clearing browser cache will reset all data
 - Try refreshing the page or checking if cookies are blocked
+
+**Can't see labels on the board?**
+- Check if Pro Mode is enabled (toggle it off to see labels)
+- Refresh the page
+
+**Wrong answer deducting too many points?**
+- Each wrong answer costs -5 points (minimum score is 0)
+- This is intentional to encourage accuracy over guessing
 
 ## 📦 Browser Compatibility
 
