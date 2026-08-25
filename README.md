@@ -1,6 +1,8 @@
 # Chess Vision Trainer
 
-A fun, interactive web-based tool to improve chess coordinate recognition and spatial memory. Quickly identify chess board squares and columns through gamified practice with scoring, timers, and multiplayer leaderboards.
+A fun, interactive web-based tool to improve chess coordinate recognition and spatial memory. Quickly identify chess board squares and columns through gamified practice with scoring, timers, and multiple difficulty levels.
+
+🎮 **Play Now:** https://nozelrosario.github.io/chessvisiontrainer/
 
 ## 🎮 Features
 
@@ -319,6 +321,76 @@ Requires modern browser with ES6 JavaScript support (2015+).
 ## 🤝 Contributing
 
 Found a bug or have an idea? Feel free to open an issue or submit a pull request!
+
+---
+
+## 🔄 Development Workflow
+
+This project uses a **dual-branch deployment strategy** to ensure production stability while enabling safe development:
+
+### 📊 Branch Structure
+
+| Branch | Purpose | URL | Deployment |
+|--------|---------|-----|------------|
+| **main** | Production | 🟢 https://nozelrosario.github.io/chessvisiontrainer/ | Automatic (GitHub Actions) |
+| **develop** | UAT/Testing | 🔵 https://nozelrosario.github.io/chessvisiontrainer/develop/ | Automatic (GitHub Actions) |
+
+### 🔁 Development Workflow
+
+1. **Create a feature branch** from `develop`
+   ```bash
+   git checkout develop
+   git pull origin develop
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make your changes** and test locally
+   ```bash
+   python -m http.server 8000
+   # Test at http://localhost:8000/index.html
+   ```
+
+3. **Push to your feature branch**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+4. **Create a Pull Request** from your feature branch → `develop`
+   - Describe the changes and why they were made
+   - Link any related issues
+
+5. **Test on UAT** at https://nozelrosario.github.io/chessvisiontrainer/develop/
+   - Once the PR is merged to `develop`, changes deploy automatically
+   - Test thoroughly to ensure everything works
+
+6. **Create a PR** from `develop` → `main` (production)
+   - This requires at least 1 approval
+   - Automated checks must pass
+   - Direct commits to `main` are blocked
+
+7. **Merge to main** and deploy to production
+   - Once merged, changes go live at https://nozelrosario.github.io/chessvisiontrainer/
+   - Deployment is automatic via GitHub Actions
+
+### ✅ Guidelines
+
+- **Always work on feature branches**, never commit directly to `develop` or `main`
+- **Test changes on the develop UAT URL** before merging to production
+- **Use descriptive commit messages** and PR titles
+- **Keep PRs focused** on a single feature or fix
+- **Review code carefully** before approving PRs
+- **Production (`main`) should always be stable** and deployable
+
+### 🚀 Deployment
+
+Deployments are **fully automated** via GitHub Actions workflow (`.github/workflows/deploy.yml`):
+
+- **Push to `main`** → Automatic deployment to production URL
+- **Push to `develop`** → Automatic deployment to UAT URL
+- Each branch deploys independently to its respective URL
+- No manual deployment steps required!
+
+---
 
 ## 📄 License
 
