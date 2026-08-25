@@ -39,7 +39,7 @@ jobs:
           keep_files: true
 
       - name: Deployment summary
-        run: echo "✅ Production deployed to: https://nozelrosario.github.io/chessvisiontrainer/"
+        run: echo "[SUCCESS] Production deployed to https://nozelrosario.github.io/chessvisiontrainer/"
 
   deploy-uat:
     if: github.ref_name == 'develop'
@@ -73,4 +73,4 @@ jobs:
           keep_files: true
 
       - name: Deployment summary
-        run: echo "✅ UAT deployed to: https://nozelrosario.github.io/chessvisiontrainer/develop/"
+        run: echo "[SUCCESS] UAT deployed to https://nozelrosario.github.io/chessvisiontrainer/develop/"
