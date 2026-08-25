@@ -11,12 +11,8 @@ on:
       - develop
 
 jobs:
-  deploy-prod:
-    if: github.ref == 'refs/heads/main'
+  deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
       pages: write
@@ -29,47 +25,34 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload artifact for main branch
+      - name: Build artifact for main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p _site
+          cp -r . _site/
+          rm -rf _site/_site .git _site/.git
+
+      - name: Build artifact for develop branch
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          mkdir -p _site/develop
+          # Copy all files to develop subdirectory
+          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} _site/develop/ \;
+          find . -maxdepth 1 -type d ! -name '_site' ! -name '.git' ! -name '.' -exec cp -r {} _site/develop/ \;
+
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '_site'
 
-      - name: Deploy to GitHub Pages (Production)
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
       - name: Print deployment info
         run: |
-          echo "✅ Production deployed to: https://nozelrosario.github.io/chessvisiontrainer/"
-
-  deploy-uat:
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Create develop directory structure
-        run: |
-          mkdir -p build/develop
-          # Copy only files and directories, excluding build/ and .git
-          find . -maxdepth 1 -type f -exec cp {} build/develop/ \;
-          find . -maxdepth 1 -type d ! -name build ! -name .git ! -name . -exec cp -r {} build/develop/ \;
-
-      - name: Upload artifact for develop branch
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'build'
-
-      - name: Deploy to GitHub Pages (UAT)
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Print deployment info
-        run: |
-          echo "✅ UAT deployed to: https://nozelrosario.github.io/chessvisiontrainer/develop/"
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "✅ Production deployed to: https://nozelrosario.github.io/chessvisiontrainer/"
+          else
+            echo "✅ UAT deployed to: https://nozelrosario.github.io/chessvisiontrainer/develop/"
+          fi
