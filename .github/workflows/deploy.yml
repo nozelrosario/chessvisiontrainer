@@ -29,8 +29,9 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           mkdir -p _site
-          cp -r . _site/
-          rm -rf _site/_site .git _site/.git
+          # Copy all files except _site and .git
+          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} _site/ \;
+          find . -maxdepth 1 -type d ! -name '_site' ! -name '.git' ! -name '.' -exec cp -r {} _site/ \;
 
       - name: Build artifact for develop branch
         if: github.ref == 'refs/heads/develop'
