@@ -14,13 +14,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pages: write
       id-token: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -28,27 +30,34 @@ jobs:
       - name: Build artifact for main branch
         if: github.ref == 'refs/heads/main'
         run: |
-          mkdir -p _site
-          # Copy all files except _site and .git
-          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} _site/ \;
-          find . -maxdepth 1 -type d ! -name '_site' ! -name '.git' ! -name '.' -exec cp -r {} _site/ \;
-
+          mkdir -p build
+          # Copy all files except build and .git
+          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} build/ \;
+          find . -maxdepth 1 -type d ! -name 'build' ! -name '.git' ! -name '.' -exec cp -r {} build/ \;
+          
       - name: Build artifact for develop branch
         if: github.ref == 'refs/heads/develop'
         run: |
-          mkdir -p _site/develop
+          mkdir -p build/develop
           # Copy all files to develop subdirectory
-          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} _site/develop/ \;
-          find . -maxdepth 1 -type d ! -name '_site' ! -name '.git' ! -name '.' -exec cp -r {} _site/develop/ \;
+          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} build/develop/ \;
+          find . -maxdepth 1 -type d ! -name 'build' ! -name '.git' ! -name '.' -exec cp -r {} build/develop/ \;
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy main to gh-pages root
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: '_site'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          cname: nozelrosario.github.io
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy develop to gh-pages develop folder
+        if: github.ref == 'refs/heads/develop'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          destination_dir: develop
 
       - name: Print deployment info
         run: |
