@@ -1,0 +1,68 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Build artifact for main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p build
+          # Copy all files except build and .git
+          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} build/ \;
+          find . -maxdepth 1 -type d ! -name 'build' ! -name '.git' ! -name '.' -exec cp -r {} build/ \;
+          
+      - name: Build artifact for develop branch
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          mkdir -p build/develop
+          # Copy all files to develop subdirectory
+          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} build/develop/ \;
+          find . -maxdepth 1 -type d ! -name 'build' ! -name '.git' ! -name '.' -exec cp -r {} build/develop/ \;
+
+      - name: Deploy main to gh-pages root
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          cname: nozelrosario.github.io
+
+      - name: Deploy develop to gh-pages develop folder
+        if: github.ref == 'refs/heads/develop'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          destination_dir: develop
+
+      - name: Print deployment info
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "✅ Production deployed to: https://nozelrosario.github.io/chessvisiontrainer/"
+          else
+            echo "✅ UAT deployed to: https://nozelrosario.github.io/chessvisiontrainer/develop/"
+          fi
