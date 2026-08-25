@@ -57,9 +57,9 @@ jobs:
       - name: Create develop directory structure
         run: |
           mkdir -p build/develop
-          cp -r . build/develop/
-          # Remove build directory from copy to avoid recursion
-          rm -rf build/develop/build
+          # Copy only files and directories, excluding build/ and .git
+          find . -maxdepth 1 -type f -exec cp {} build/develop/ \;
+          find . -maxdepth 1 -type d ! -name build ! -name .git ! -name . -exec cp -r {} build/develop/ \;
 
       - name: Upload artifact for develop branch
         uses: actions/upload-pages-artifact@v3
