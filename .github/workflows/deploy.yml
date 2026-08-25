@@ -28,8 +28,13 @@ jobs:
       - name: Build for production
         run: |
           mkdir -p build
-          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} build/ \;
-          find . -maxdepth 1 -type d ! -name 'build' ! -name '.git' ! -name '.' -exec cp -r {} build/ \;
+          ls -la
+          echo "Contents of current directory:"
+          find . -maxdepth 1 -type f -not -path '*/\.*' -not -name '.git*'
+          find . -maxdepth 1 -type f -not -path '*/\.*' -not -name '.git*' -exec cp {} build/ \;
+          find . -maxdepth 1 -type d -not -name 'build' -not -name '.git' -not -name '.' | while read dir; do cp -r "$dir" build/; done
+          echo "Build directory contents:"
+          ls -la build/
 
       - name: Deploy to production
         uses: peaceiris/actions-gh-pages@v3
@@ -62,8 +67,13 @@ jobs:
       - name: Build for UAT
         run: |
           mkdir -p build/develop
-          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} build/develop/ \;
-          find . -maxdepth 1 -type d ! -name 'build' ! -name '.git' ! -name '.' -exec cp -r {} build/develop/ \;
+          ls -la
+          echo "Contents of current directory:"
+          find . -maxdepth 1 -type f -not -path '*/\.*' -not -name '.git*'
+          find . -maxdepth 1 -type f -not -path '*/\.*' -not -name '.git*' -exec cp {} build/develop/ \;
+          find . -maxdepth 1 -type d -not -name 'build' -not -name '.git' -not -name '.' | while read dir; do cp -r "$dir" build/develop/; done
+          echo "Build directory contents:"
+          ls -la build/
 
       - name: Deploy to UAT
         uses: peaceiris/actions-gh-pages@v3
