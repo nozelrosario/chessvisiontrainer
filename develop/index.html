@@ -14,7 +14,6 @@
             --accent-color: #4caf50;
             --penalty-color: #f44336;
             
-            /* Responsive fluid sizing calculations */
             --square-size: clamp(34px, 9.5vw, 60px);
             --label-size: clamp(20px, 5vw, 30px);
         }
@@ -53,10 +52,10 @@
             border-radius: 12px;
             margin-bottom: 15px;
             width: 100%;
-            max-width: 510px;
+            max-width: 530px;
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -66,7 +65,7 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            min-width: 100px;
+            min-width: 95px;
         }
 
         .control-group label {
@@ -79,7 +78,7 @@
 
         .pro-group {
             flex: 0;
-            min-width: 65px;
+            min-width: 55px;
             align-items: center;
             justify-content: center;
         }
@@ -106,8 +105,8 @@
         }
 
         select, button, input[type="text"] {
-            padding: 10px;
-            font-size: 14px;
+            padding: 9px;
+            font-size: 13px;
             border: none;
             border-radius: 6px;
             background-color: #444;
@@ -126,7 +125,7 @@
             font-weight: bold;
             cursor: pointer;
             flex: 1;
-            min-width: 100px;
+            min-width: 90px;
             box-shadow: 0 3px 6px rgba(76, 175, 80, 0.3);
             transition: transform 0.1s, background 0.2s;
         }
@@ -153,7 +152,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             width: 100%;
-            max-width: 510px;
+            max-width: 530px;
             margin-bottom: 15px;
             text-align: center;
         }
@@ -187,7 +186,7 @@
         }
 
         #prompt {
-            font-size: clamp(24px, 7vw, 32px);
+            font-size: clamp(20px, 6vw, 28px);
             color: #ffeb3b;
             font-weight: 800;
             text-align: center;
@@ -206,7 +205,6 @@
             max-width: 90vw;
         }
 
-        /* Responsive Chessboard Container */
         .board-container {
             display: grid;
             grid-template-columns: var(--label-size) repeat(8, var(--square-size));
@@ -229,6 +227,59 @@
             transition: background-color 0.15s ease;
         }
 
+        .piece {
+            font-size: clamp(28px, 8vw, 46px);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+            display: inline-block;
+            transform: translateY(-1px);
+            transition: transform 0.15s ease, color 0.15s ease;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .board-container.style-vector .piece.black-piece {
+            color: #121212;
+            text-shadow: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+        }
+
+        .board-container.style-vector .piece.white-piece {
+            color: #ffffff;
+            text-shadow: -1px -1px 0 #121212, 1px -1px 0 #121212, -1px 1px 0 #121212, 1px 1px 0 #121212;
+        }
+
+        .board-container.style-outline .piece.black-piece {
+            color: #1a1d20;
+            text-shadow: -1px -1px 0 #4dabf7, 1px -1px 0 #4dabf7, -1px 1px 0 #4dabf7, 1px 1px 0 #4dabf7;
+        }
+
+        .board-container.style-outline .piece.white-piece {
+            color: #e7f5ff;
+            text-shadow: -1px -1px 0 #1864ab, 1px -1px 0 #1864ab, -1px 1px 0 #1864ab, 1px 1px 0 #1864ab;
+        }
+
+        .board-container.style-minimal .piece.black-piece {
+            color: #181818;
+            text-shadow: -1px -1px 0 #ffd43b, 1px -1px 0 #ffd43b, -1px 1px 0 #ffd43b, 1px 1px 0 #ffd43b;
+        }
+
+        .board-container.style-minimal .piece.white-piece {
+            color: #fff9db;
+            text-shadow: -1px -1px 0 #212529, 1px -1px 0 #212529, -1px 1px 0 #212529, 1px 1px 0 #212529;
+        }
+
+        .board-container.style-slate .piece.black-piece {
+            color: #000000;
+            text-shadow: -1.5px -1.5px 0 #f8f9fa, 1.5px -1.5px 0 #f8f9fa, -1.5px 1.5px 0 #f8f9fa, 1.5px 1.5px 0 #f8f9fa;
+        }
+
+        .board-container.style-slate .piece.white-piece {
+            color: #ffffff;
+            text-shadow: -1.5px -1.5px 0 #000000, 1.5px -1.5px 0 #000000, -1.5px 1.5px 0 #000000, 1.5px 1.5px 0 #000000;
+        }
+
         .light { background-color: var(--light-square); }
         .dark { background-color: var(--dark-square); }
 
@@ -247,91 +298,35 @@
             pointer-events: none;
         }
 
-        /* Modal Popup UI */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease;
         }
 
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
         .modal-card {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 380px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: var(--card-bg); padding: 25px; border-radius: 16px;
+            width: 90%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             border: 1px solid #444;
         }
 
-        .modal-card h2 {
-            margin-top: 0;
-            font-size: 20px;
-            color: #ffeb3b;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .modal-card h2 { margin-top: 0; font-size: 20px; color: #ffeb3b; text-align: center; margin-bottom: 20px; }
+        .modal-divider { text-align: center; margin: 15px 0; font-size: 11px; text-transform: uppercase; color: #777; letter-spacing: 2px; }
 
-        .modal-divider {
-            text-align: center;
-            margin: 15px 0;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #777;
-            letter-spacing: 2px;
-        }
+        .correct-flash { background-color: #4caf50 !important; animation: flash-glow 0.3s ease-out; }
+        .wrong-flash { background-color: #f44336 !important; animation: flash-glow 0.3s ease-out; }
 
-        /* Visual Polish Animations */
-        .correct-flash {
-            background-color: #4caf50 !important;
-            animation: flash-glow 0.3s ease-out;
-        }
-
-        .wrong-flash {
-            background-color: #f44336 !important;
-            animation: flash-glow 0.3s ease-out;
-        }
-
-        @keyframes flash-glow {
-            0% { filter: brightness(1.5); }
-            100% { filter: brightness(1); }
-        }
-
-        .animate-pop {
-            animation: score-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes score-pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
-
-        .timer-panic {
-            color: var(--penalty-color) !important;
-            animation: pulse-panic 0.8s infinite alternate;
-        }
-
-        @keyframes pulse-panic {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
+        @keyframes flash-glow { 0% { filter: brightness(1.5); } 100% { filter: brightness(1); } }
+        .animate-pop { animation: score-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes score-pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .timer-panic { color: var(--penalty-color) !important; animation: pulse-panic 0.8s infinite alternate; }
+        @keyframes pulse-panic { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
     </style>
 </head>
 <body>
@@ -344,6 +339,7 @@
             <select id="gameMode">
                 <option value="columns">1: Columns (a-h)</option>
                 <option value="full">2: Full Grid</option>
+                <option value="attack">3: Attack Detection</option>
             </select>
         </div>
 
@@ -353,6 +349,16 @@
                 <option value="none">Untimed</option>
                 <option value="30">30s Blitz</option>
                 <option value="60">60s Standard</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="pieceStyle">Style</label>
+            <select id="pieceStyle">
+                <option value="vector">Classic Vector</option>
+                <option value="outline">Sharp Outline</option>
+                <option value="minimal">Crisp Minimal</option>
+                <option value="slate">High Contrast</option>
             </select>
         </div>
 
@@ -386,24 +392,20 @@
     <div id="prompt">Tap Start!</div>
     <div id="feedback">Ready to practice?</div>
 
-    <div class="board-container" id="board"></div>
+    <div class="board-container style-vector" id="board"></div>
 
     <div id="userModal" class="modal-overlay">
         <div class="modal-card">
             <h2>Select Profile</h2>
-            
             <div class="control-group">
                 <label for="existingUsersSelect">Saved Users</label>
                 <select id="existingUsersSelect"></select>
             </div>
-
             <div class="modal-divider">or</div>
-
             <div class="control-group">
                 <label for="newUsernameInput">Create New Profile</label>
                 <input type="text" id="newUsernameInput" placeholder="Enter name..." maxlength="12">
             </div>
-
             <button id="modalConfirmBtn" class="action-btn" style="margin-top: 20px;">Save & Play</button>
         </div>
     </div>
@@ -413,13 +415,13 @@
         const startBtn = document.getElementById('startBtn');
         const gameModeSelect = document.getElementById('gameMode');
         const timerModeSelect = document.getElementById('timerMode');
+        const pieceStyleSelect = document.getElementById('pieceStyle');
         const proModeCheck = document.getElementById('proMode');
         const scoreDisplay = document.getElementById('score');
         const highScoreDisplay = document.getElementById('highScore');
         const promptDisplay = document.getElementById('prompt');
         const feedbackDisplay = document.getElementById('feedback');
         
-        // Profile Management Elements
         const userModal = document.getElementById('userModal');
         const existingUsersSelect = document.getElementById('existingUsersSelect');
         const newUsernameInput = document.getElementById('newUsernameInput');
@@ -433,6 +435,8 @@
 
         let score = 0;
         let currentPrompt = '';
+        let currentBoardState = {};
+        let activeAttacks = [];
         let isPlaying = false;
         let timerInterval = null;
         let timeLeft = 0;
@@ -441,6 +445,31 @@
 
         const positivePhrases = ["Magnus would be proud!", "Excellent vision!", "Spot on!", "Genius!", "Speedy calculations! ⚡"];
         const motivationPhrases = ["Shake it off, try again!", "Keep pushing your boundaries!", "Consistency beats talent!", "Almost had it! Keep practicing."];
+
+        const WHITE_PIECES = ['♔', '♕', '♖', '♗', '♘', '♙'];
+        const BLACK_PIECES = ['♚', '♛', '♜', '♝', '♞', '♟'];
+
+        function isWhite(piece) { return WHITE_PIECES.includes(piece); }
+        function isBlack(piece) { return BLACK_PIECES.includes(piece); }
+
+        function getPieceMeta(piece) {
+            switch(piece) {
+                case '♙': case '♟': return { type: 'pawn', val: 10, name: 'Pawn' };
+                case '♘': case '♞': return { type: 'knight', val: 30, name: 'Knight' };
+                case '♗': case '♝': return { type: 'bishop', val: 30, name: 'Bishop' };
+                case '♖': case '♜': return { type: 'rook', val: 50, name: 'Rook' };
+                case '♕': case '♛': return { type: 'queen', val: 90, name: 'Queen' };
+                case '♔': case '♚': return { type: 'king', val: 100, name: 'King' };
+                default: return { type: null, val: 0, name: 'Piece' };
+            }
+        }
+
+        function applyPieceStyleTheme() {
+            const selectedStyle = pieceStyleSelect.value || 'vector';
+            board.classList.remove('style-vector', 'style-outline', 'style-minimal', 'style-slate');
+            board.classList.add(`style-${selectedStyle}`);
+            localStorage.setItem('chess_piece_style', selectedStyle);
+        }
 
         function generateBoard() {
             board.innerHTML = '';
@@ -474,6 +503,159 @@
                         board.appendChild(square);
                     }
                 }
+            }
+        }
+
+        /* Scan board for valid attacks */
+        function analyzeAttacks(pieceMap) {
+            let attacks = [];
+
+            for (let targetSq in pieceMap) {
+                let targetPiece = pieceMap[targetSq];
+                let targetIsWhite = isWhite(targetPiece);
+                let tx = files.indexOf(targetSq[0]);
+                let ty = ranks.indexOf(targetSq[1]);
+
+                for (let attackerSq in pieceMap) {
+                    if (attackerSq === targetSq) continue;
+                    let attackerPiece = pieceMap[attackerSq];
+                    let attackerIsWhite = isWhite(attackerPiece);
+
+                    if (targetIsWhite === attackerIsWhite) continue;
+
+                    let ax = files.indexOf(attackerSq[0]);
+                    let ay = ranks.indexOf(attackerSq[1]);
+                    let attMeta = getPieceMeta(attackerPiece);
+                    let isAttacking = false;
+
+                    if (attMeta.type === 'knight') {
+                        let dx = Math.abs(ax - tx);
+                        let dy = Math.abs(ay - ty);
+                        if ((dx === 1 && dy === 2) || (dx === 2 && dy === 1)) isAttacking = true;
+                    } 
+                    else if (attMeta.type === 'pawn') {
+                        let dx = Math.abs(ax - tx);
+                        if (attackerIsWhite) {
+                            if (dx === 1 && (ay - ty === 1)) isAttacking = true;
+                        } else {
+                            if (dx === 1 && (ty - ay === 1)) isAttacking = true;
+                        }
+                    } 
+                    else if (attMeta.type === 'king') {
+                        let dx = Math.abs(ax - tx);
+                        let dy = Math.abs(ay - ty);
+                        if (dx <= 1 && dy <= 1) isAttacking = true;
+                    } 
+                    else {
+                        let dx = Math.sign(tx - ax);
+                        let dy = Math.sign(ty - ay);
+                        let absDx = Math.abs(tx - ax);
+                        let absDy = Math.abs(ty - ay);
+
+                        let validDir = false;
+                        if (attMeta.type === 'rook' && (absDx === 0 || absDy === 0)) validDir = true;
+                        if (attMeta.type === 'bishop' && (absDx === absDy)) validDir = true;
+                        if (attMeta.type === 'queen' && (absDx === 0 || absDy === 0 || absDx === absDy)) validDir = true;
+
+                        if (validDir) {
+                            let cx = ax + dx;
+                            let cy = ay + dy;
+                            let blocked = false;
+                            while (cx !== tx || cy !== ty) {
+                                let pathSq = files[cx] + ranks[cy];
+                                if (pieceMap[pathSq]) {
+                                    blocked = true;
+                                    break;
+                                }
+                                cx += dx;
+                                cy += dy;
+                            }
+                            if (!blocked) isAttacking = true;
+                        }
+                    }
+
+                    if (isAttacking) {
+                        let targetMeta = getPieceMeta(targetPiece);
+                        attacks.push({
+                            attackerSq,
+                            targetSq,
+                            attackerPiece,
+                            targetPiece,
+                            value: targetMeta.val,
+                            targetName: targetMeta.name
+                        });
+                    }
+                }
+            }
+            return attacks;
+        }
+
+        /* Board generator respecting piece counts and color complexes */
+        function generateValidAttackScenario() {
+            let pieceMap = {};
+            let wCounts = { Q: 1, R: 2, B_L: 1, B_D: 1, N: 2, P: 4 };
+            let bCounts = { Q: 1, R: 2, B_L: 1, B_D: 1, N: 2, P: 4 };
+
+            function isLightSquare(x, y) { return (x + y) % 2 === 0; }
+
+            // Place Kings safely
+            pieceMap['e1'] = '♔';
+            pieceMap['e8'] = '♚';
+
+            let piecePool = [];
+            if (wCounts.Q--) piecePool.push('♕');
+            if (wCounts.R--) piecePool.push('♖');
+            if (wCounts.B_L--) piecePool.push('♗_L');
+            if (wCounts.B_D--) piecePool.push('♗_D');
+            if (wCounts.N--) piecePool.push('♘');
+            for(let i=0; i<3; i++) piecePool.push('♙');
+
+            if (bCounts.Q--) piecePool.push('♛');
+            if (bCounts.R--) piecePool.push('♜');
+            if (bCounts.B_L--) piecePool.push('♝_L');
+            if (bCounts.B_D--) piecePool.push('♝_D');
+            if (bCounts.N--) piecePool.push('♞');
+            for(let i=0; i<3; i++) piecePool.push('♟');
+
+            piecePool.sort(() => Math.random() - 0.5);
+
+            let placed = 0;
+            let targetCount = Math.floor(Math.random() * 5) + 6;
+
+            for (let item of piecePool) {
+                if (placed >= targetCount) break;
+
+                let attempts = 0;
+                while (attempts < 30) {
+                    attempts++;
+                    let rx = Math.floor(Math.random() * 8);
+                    let ry = Math.floor(Math.random() * 8);
+                    let sq = files[rx] + ranks[ry];
+
+                    if (pieceMap[sq]) continue;
+
+                    let isLight = isLightSquare(rx, ry);
+
+                    if (item === '♗_L' && !isLight) continue;
+                    if (item === '♗_D' && isLight) continue;
+                    if (item === '♝_L' && !isLight) continue;
+                    if (item === '♝_D' && isLight) continue;
+                    
+                    if ((item === '♙' || item === '♟') && (ry === 0 || ry === 7)) continue;
+
+                    let actualSymbol = item.replace('_L', '').replace('_D', '');
+                    pieceMap[sq] = actualSymbol;
+                    placed++;
+                    break;
+                }
+            }
+
+            let attacks = analyzeAttacks(pieceMap);
+
+            if (attacks.length >= 1 && attacks.length <= 4) {
+                return { pieceMap, attacks };
+            } else {
+                return generateValidAttackScenario(); 
             }
         }
 
@@ -515,30 +697,8 @@
             const suffix = getScoreKeySuffix();
             
             if (globalBest.score > 0 && currentRunningScore > globalBest.score && globalBest.owner !== currentUser) {
-                return `🔥 UNSTOPPABLE! You just beat ${globalBest.owner}'s record! 🔥`;
+                return `🔥 UNSTOPPABLE! New top record! 🔥`;
             }
-            if (globalBest.score > 0 && currentRunningScore === globalBest.score && globalBest.owner !== currentUser) {
-                return `👑 Tied with ${globalBest.owner} for the crown! Next point wins! 👑`;
-            }
-            if (globalBest.score > 0 && currentRunningScore < globalBest.score && (globalBest.score - currentRunningScore) <= 20) {
-                return `🚀 Just ${globalBest.score - currentRunningScore} pts away from beating ${globalBest.owner}!`;
-            }
-            
-            let overtakenTarget = null;
-            for (let i = 0; i < allUsers.length; i++) {
-                const u = allUsers[i];
-                if (u !== currentUser) {
-                    const uScore = parseInt(localStorage.getItem(`chess_user_score_${u}${suffix}`)) || 0;
-                    if (uScore > 0 && currentRunningScore === uScore + 10) {
-                        overtakenTarget = u;
-                        break;
-                    }
-                }
-            }
-            if (overtakenTarget) {
-                return `⚡ Boom! You just passed ${overtakenTarget}'s score!`;
-            }
-
             return positivePhrases[Math.floor(Math.random() * positivePhrases.length)];
         }
 
@@ -552,9 +712,13 @@
             }
             
             const savedProfile = localStorage.getItem('chess_trainer_current_profile');
+            const savedStyle = localStorage.getItem('chess_piece_style');
+            if (savedStyle) {
+                pieceStyleSelect.value = savedStyle;
+            }
+            applyPieceStyleTheme();
             populateModalDropdown();
 
-            // Automatic Modal Trigger: Opens up if no historical profile cookie/session exists
             if (!savedProfile) {
                 currentUser = allUsers[0];
                 activeUserDisplay.innerText = currentUser;
@@ -612,7 +776,13 @@
             score = 0;
             isPlaying = true;
             scoreDisplay.innerText = score;
-            feedbackDisplay.innerText = proModeCheck.checked ? "Pro Mode Active! Trust your spatial grid memory." : "Find them fast!";
+
+            if (gameModeSelect.value === 'attack') {
+                feedbackDisplay.innerText = "Click ANY piece under attack or attacker! Value: Q=90, R=50, B/N=30, P=10";
+            } else {
+                feedbackDisplay.innerText = proModeCheck.checked ? "Pro Mode Active! Trust your grid memory." : "Find them fast!";
+            }
+            
             feedbackDisplay.style.color = '#fff';
             
             const timerSetting = timerModeSelect.value;
@@ -650,6 +820,8 @@
             userLabelCard.innerText = "Player";
             promptDisplay.innerText = "Game Over!";
             
+            document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
+            
             const suffix = getScoreKeySuffix();
             const personalRecordKey = `chess_user_score_${currentUser}${suffix}`;
             const personalBest = parseInt(localStorage.getItem(personalRecordKey)) || 0;
@@ -660,7 +832,7 @@
 
             const globalBest = getGlobalHighScoreDetails();
             if (score >= globalBest.score && score > 0) {
-                feedbackDisplay.innerText = `👑 Match Complete! Top of the leaderboard with ${score}!`;
+                feedbackDisplay.innerText = `👑 Match Complete! High Score: ${score}!`;
                 feedbackDisplay.style.color = '#ffeb3b';
                 triggerElementPop(highScoreDisplay);
             } else {
@@ -672,11 +844,34 @@
             updateHighScoreView();
         }
 
+        function renderPiecesOnBoard(pieceMap) {
+            document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
+            for (const [coord, piece] of Object.entries(pieceMap)) {
+                const sqEl = document.querySelector(`[data-coord="${coord}"]`);
+                if (sqEl) {
+                    const colorClass = isWhite(piece) ? 'white-piece' : 'black-piece';
+                    sqEl.innerHTML = `<span class="piece ${colorClass}">${piece}</span>`;
+                }
+            }
+        }
+
         function nextQuestion() {
             if (!isPlaying) return;
             const mode = gameModeSelect.value;
             
-            if (mode === 'columns') {
+            document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
+
+            if (mode === 'attack') {
+                const scenario = generateValidAttackScenario();
+                currentBoardState = scenario.pieceMap;
+                activeAttacks = scenario.attacks;
+                
+                renderPiecesOnBoard(currentBoardState);
+                
+                let attackCount = activeAttacks.length;
+                promptDisplay.innerText = `Tactical Attack! (${attackCount} Target${attackCount > 1 ? 's' : ''})`;
+
+            } else if (mode === 'columns') {
                 const randomFile = files[Math.floor(Math.random() * files.length)];
                 currentPrompt = randomFile;
                 promptDisplay.innerText = `Column: ${randomFile.toUpperCase()}`;
@@ -691,16 +886,38 @@
         function handleSquareClick(e) {
             if (!isPlaying) return;
 
-            const clickedSquare = e.target;
+            const clickedSquare = e.target.closest('.square') || e.target;
             const clickedFile = clickedSquare.dataset.file;
             const clickedCoord = clickedSquare.dataset.coord;
             const mode = gameModeSelect.value;
             
-            let isCorrect = (mode === 'columns') ? (clickedFile === currentPrompt) : (clickedCoord === currentPrompt);
+            let isCorrect = false;
+            let pointsEarned = 10;
+            let pointsLost = 5;
+
+            if (mode === 'columns') {
+                isCorrect = (clickedFile === currentPrompt);
+            } else if (mode === 'full') {
+                isCorrect = (clickedCoord === currentPrompt);
+            } else if (mode === 'attack') {
+                // Check if user clicked an attacked piece or attacker piece
+                let matchedAttacks = activeAttacks.filter(a => a.targetSq === clickedCoord || a.attackerSq === clickedCoord);
+                
+                if (matchedAttacks.length > 0) {
+                    isCorrect = true;
+                    // Award highest value target among matched attacks
+                    matchedAttacks.sort((a, b) => b.value - a.value);
+                    let bestMatch = matchedAttacks[0];
+                    pointsEarned = bestMatch.value;
+                    feedbackDisplay.innerText = `🎯 Attack Found! Identified ${bestMatch.targetName} target (+${pointsEarned} pts)!`;
+                }
+            }
 
             if (isCorrect) {
-                score += 10;
-                feedbackDisplay.innerText = evaluateLiveProgress(score);
+                score += pointsEarned;
+                if (mode !== 'attack') {
+                    feedbackDisplay.innerText = evaluateLiveProgress(score);
+                }
                 feedbackDisplay.style.color = 'var(--accent-color)';
                 triggerElementPop(scoreDisplay);
                 
@@ -711,8 +928,10 @@
                 }
                 nextQuestion();
             } else {
-                score = Math.max(0, score - 5);
-                feedbackDisplay.innerText = `Oops, that was ${clickedCoord.toUpperCase()} (-5)`;
+                score = Math.max(0, score - pointsLost);
+                feedbackDisplay.innerText = mode === 'attack' 
+                    ? `No active attack at ${clickedCoord.toUpperCase()} (-5)` 
+                    : `Oops, that was ${clickedCoord.toUpperCase()} (-5)`;
                 feedbackDisplay.style.color = 'var(--penalty-color)';
                 triggerElementPop(scoreDisplay);
                 
@@ -740,22 +959,21 @@
             element.classList.add('animate-pop');
         }
 
-        // Programmatic Obfuscated Signature System
         (function injectSecureFooter() {
-            const bytecode = [99,114,101,97,116,101,100,32,98,121,32,78,111,122,101,108,32,82,111,115,97,114,105,111];
+            const bytecode = [99,114,101,97,116,101,100,32,98,121,32,78,111,122,101,108,32,82,111,122,97,114,105,111];
             const footerEl = document.createElement('footer');
             footerEl.innerText = String.fromCharCode(...bytecode);
             footerEl.style.cssText = 'font-size: 9px; color: #555; margin-top: 25px; text-align: center; letter-spacing: 0.5px; user-select: none; opacity: 0.6; padding-bottom: 10px;';
             document.body.appendChild(footerEl);
         })();
 
-        // Event Hook Assignments
         startBtn.addEventListener('click', startGame);
         switchUserBtn.addEventListener('click', function(e) {
             e.preventDefault();
             showUserModal();
         });
         modalConfirmBtn.addEventListener('click', handleModalConfirm);
+        pieceStyleSelect.addEventListener('change', applyPieceStyleTheme);
 
         gameModeSelect.addEventListener('change', () => {
             updateHighScoreView();
@@ -777,7 +995,6 @@
             if(isPlaying) endGame(); 
         });
 
-        // Initialize App
         generateBoard();
         initializeProfiles();
         updateHighScoreView();
