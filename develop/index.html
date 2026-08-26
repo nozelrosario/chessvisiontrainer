@@ -65,7 +65,7 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            min-width: 95px;
+            min-width: 85px;
         }
 
         .control-group label {
@@ -344,6 +344,14 @@
         </div>
 
         <div class="control-group">
+            <label for="playerSide">Side</label>
+            <select id="playerSide">
+                <option value="white">White</option>
+                <option value="black">Black</option>
+            </select>
+        </div>
+
+        <div class="control-group">
             <label for="timerMode">Timer</label>
             <select id="timerMode">
                 <option value="none">Untimed</option>
@@ -414,6 +422,7 @@
         const board = document.getElementById('board');
         const startBtn = document.getElementById('startBtn');
         const gameModeSelect = document.getElementById('gameMode');
+        const playerSideSelect = document.getElementById('playerSide');
         const timerModeSelect = document.getElementById('timerMode');
         const pieceStyleSelect = document.getElementById('pieceStyle');
         const proModeCheck = document.getElementById('proMode');
@@ -506,13 +515,18 @@
             }
         }
 
-        /* Scan board for valid attacks */
-        function analyzeAttacks(pieceMap) {
+        /* Scan board for valid attacks launched by opponent against player */
+        function analyzeAttacks(pieceMap, playerSide = 'white') {
             let attacks = [];
 
             for (let targetSq in pieceMap) {
                 let targetPiece = pieceMap[targetSq];
                 let targetIsWhite = isWhite(targetPiece);
+                
+                // Only evaluate attacks targeting player's pieces
+                let targetIsPlayer = (playerSide === 'white' && targetIsWhite) || (playerSide === 'black' && !targetIsWhite);
+                if (!targetIsPlayer) continue;
+
                 let tx = files.indexOf(targetSq[0]);
                 let ty = ranks.indexOf(targetSq[1]);
 
@@ -521,7 +535,9 @@
                     let attackerPiece = pieceMap[attackerSq];
                     let attackerIsWhite = isWhite(attackerPiece);
 
-                    if (targetIsWhite === attackerIsWhite) continue;
+                    // Attacker must be the opponent
+                    let attackerIsOpponent = (playerSide === 'white' && !attackerIsWhite) || (playerSide === 'black' && attackerIsWhite);
+                    if (!attackerIsOpponent) continue;
 
                     let ax = files.indexOf(attackerSq[0]);
                     let ay = ranks.indexOf(attackerSq[1]);
@@ -590,8 +606,8 @@
             return attacks;
         }
 
-        /* Board generator respecting piece counts and color complexes */
-        function generateValidAttackScenario() {
+        /* Board generator respecting piece counts, color complexes, and player side */
+        function generateValidAttackScenario(playerSide = 'white') {
             let pieceMap = {};
             let wCounts = { Q: 1, R: 2, B_L: 1, B_D: 1, N: 2, P: 4 };
             let bCounts = { Q: 1, R: 2, B_L: 1, B_D: 1, N: 2, P: 4 };
@@ -650,20 +666,21 @@
                 }
             }
 
-            let attacks = analyzeAttacks(pieceMap);
+            let attacks = analyzeAttacks(pieceMap, playerSide);
 
             if (attacks.length >= 1 && attacks.length <= 4) {
                 return { pieceMap, attacks };
             } else {
-                return generateValidAttackScenario(); 
+                return generateValidAttackScenario(playerSide); 
             }
         }
 
         function getScoreKeySuffix() {
             const level = gameModeSelect.value;
+            const side = playerSideSelect.value;
             const proStatus = proModeCheck.checked ? 'pro' : 'standard';
             const timerSetting = timerModeSelect.value;
-            return `_${level}_${proStatus}_t${timerSetting}`;
+            return `_${level}_${side}_${proStatus}_t${timerSetting}`;
         }
 
         function getGlobalHighScoreDetails() {
@@ -694,7 +711,6 @@
 
         function evaluateLiveProgress(currentRunningScore) {
             const globalBest = getGlobalHighScoreDetails();
-            const suffix = getScoreKeySuffix();
             
             if (globalBest.score > 0 && currentRunningScore > globalBest.score && globalBest.owner !== currentUser) {
                 return `🔥 UNSTOPPABLE! New top record! 🔥`;
@@ -778,7 +794,8 @@
             scoreDisplay.innerText = score;
 
             if (gameModeSelect.value === 'attack') {
-                feedbackDisplay.innerText = "Click ANY piece under attack or attacker! Value: Q=90, R=50, B/N=30, P=10";
+                const sideText = playerSideSelect.value.toUpperCase();
+                feedbackDisplay.innerText = `Playing as ${sideText}! Detect opponent attacks on your pieces. (Q=90, R=50, B/N=30, P=10)`;
             } else {
                 feedbackDisplay.innerText = proModeCheck.checked ? "Pro Mode Active! Trust your grid memory." : "Find them fast!";
             }
@@ -862,14 +879,16 @@
             document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
 
             if (mode === 'attack') {
-                const scenario = generateValidAttackScenario();
+                const playerSide = playerSideSelect.value;
+                const scenario = generateValidAttackScenario(playerSide);
                 currentBoardState = scenario.pieceMap;
                 activeAttacks = scenario.attacks;
                 
                 renderPiecesOnBoard(currentBoardState);
                 
                 let attackCount = activeAttacks.length;
-                promptDisplay.innerText = `Tactical Attack! (${attackCount} Target${attackCount > 1 ? 's' : ''})`;
+                const oppColor = playerSide === 'white' ? 'Black' : 'White';
+                promptDisplay.innerText = `${oppColor} Threat! (${attackCount} Target${attackCount > 1 ? 's' : ''})`;
 
             } else if (mode === 'columns') {
                 const randomFile = files[Math.floor(Math.random() * files.length)];
@@ -900,7 +919,7 @@
             } else if (mode === 'full') {
                 isCorrect = (clickedCoord === currentPrompt);
             } else if (mode === 'attack') {
-                // Check if user clicked an attacked piece or attacker piece
+                // Check if user clicked an attacked piece or attacker piece involved in opponent attack
                 let matchedAttacks = activeAttacks.filter(a => a.targetSq === clickedCoord || a.attackerSq === clickedCoord);
                 
                 if (matchedAttacks.length > 0) {
@@ -909,7 +928,7 @@
                     matchedAttacks.sort((a, b) => b.value - a.value);
                     let bestMatch = matchedAttacks[0];
                     pointsEarned = bestMatch.value;
-                    feedbackDisplay.innerText = `🎯 Attack Found! Identified ${bestMatch.targetName} target (+${pointsEarned} pts)!`;
+                    feedbackDisplay.innerText = `🎯 Threat Detected! Identified ${bestMatch.targetName} target (+${pointsEarned} pts)!`;
                 }
             }
 
@@ -930,7 +949,7 @@
             } else {
                 score = Math.max(0, score - pointsLost);
                 feedbackDisplay.innerText = mode === 'attack' 
-                    ? `No active attack at ${clickedCoord.toUpperCase()} (-5)` 
+                    ? `No active opponent attack at ${clickedCoord.toUpperCase()} (-5)` 
                     : `Oops, that was ${clickedCoord.toUpperCase()} (-5)`;
                 feedbackDisplay.style.color = 'var(--penalty-color)';
                 triggerElementPop(scoreDisplay);
@@ -976,6 +995,11 @@
         pieceStyleSelect.addEventListener('change', applyPieceStyleTheme);
 
         gameModeSelect.addEventListener('change', () => {
+            updateHighScoreView();
+            if(isPlaying) endGame();
+        });
+
+        playerSideSelect.addEventListener('change', () => {
             updateHighScoreView();
             if(isPlaying) endGame();
         });
