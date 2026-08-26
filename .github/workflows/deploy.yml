@@ -5,14 +5,14 @@ on:
     branches:
       - main
       - develop
-  pull_request:
-    branches:
-      - main
-      - develop
 
 jobs:
-  deploy:
+  deploy-prod:
+    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://nozelrosario.github.io/chessvisiontrainer/
     permissions:
       contents: write
       pages: write
@@ -21,48 +21,66 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Build artifact for main branch
-        if: github.ref == 'refs/heads/main'
+      - name: Build for production
         run: |
           mkdir -p build
-          # Copy all files except build and .git
-          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} build/ \;
-          find . -maxdepth 1 -type d ! -name 'build' ! -name '.git' ! -name '.' -exec cp -r {} build/ \;
-          
-      - name: Build artifact for develop branch
-        if: github.ref == 'refs/heads/develop'
+          ls -la
+          echo "Contents of current directory:"
+          find . -maxdepth 1 -type f -not -path '*/\.*' -not -name '.git*'
+          find . -maxdepth 1 -type f -not -path '*/\.*' -not -name '.git*' -exec cp {} build/ \;
+          find . -maxdepth 1 -type d -not -name 'build' -not -name '.git' -not -name '.' | while read dir; do cp -r "$dir" build/; done
+          echo "Build directory contents:"
+          ls -la build/
+
+      - name: Deploy to production
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          keep_files: true
+
+      - name: Deployment summary
+        run: echo "[SUCCESS] Production deployed to https://nozelrosario.github.io/chessvisiontrainer/"
+
+  deploy-uat:
+    if: github.ref_name == 'develop'
+    runs-on: ubuntu-latest
+    environment:
+      name: uat
+      url: https://nozelrosario.github.io/chessvisiontrainer/develop/
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Build for UAT
         run: |
           mkdir -p build/develop
-          # Copy all files to develop subdirectory
-          find . -maxdepth 1 -type f ! -name '.*' -exec cp {} build/develop/ \;
-          find . -maxdepth 1 -type d ! -name 'build' ! -name '.git' ! -name '.' -exec cp -r {} build/develop/ \;
+          ls -la
+          echo "Contents of current directory:"
+          find . -maxdepth 1 -type f -not -path '*/\.*' -not -name '.git*'
+          find . -maxdepth 1 -type f -not -path '*/\.*' -not -name '.git*' -exec cp {} build/develop/ \;
+          find . -maxdepth 1 -type d -not -name 'build' -not -name '.git' -not -name '.' | while read dir; do cp -r "$dir" build/develop/; done
+          echo "Build directory contents:"
+          ls -la build/
 
-      - name: Deploy main to gh-pages root
-        if: github.ref == 'refs/heads/main'
+      - name: Deploy to UAT
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
           keep_files: true
 
-      - name: Deploy develop to gh-pages develop folder
-        if: github.ref == 'refs/heads/develop'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
-          keep_files: true
-
-      - name: Print deployment info
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "✅ Production deployed to: https://nozelrosario.github.io/chessvisiontrainer/"
-          else
-            echo "✅ UAT deployed to: https://nozelrosario.github.io/chessvisiontrainer/develop/"
-          fi
+      - name: Deployment summary
+        run: echo "[SUCCESS] UAT deployed to https://nozelrosario.github.io/chessvisiontrainer/develop/"

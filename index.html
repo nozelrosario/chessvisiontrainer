@@ -14,7 +14,6 @@
             --accent-color: #4caf50;
             --penalty-color: #f44336;
             
-            /* Responsive fluid sizing calculations */
             --square-size: clamp(34px, 9.5vw, 60px);
             --label-size: clamp(20px, 5vw, 30px);
         }
@@ -53,10 +52,10 @@
             border-radius: 12px;
             margin-bottom: 15px;
             width: 100%;
-            max-width: 510px;
+            max-width: 530px;
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -66,7 +65,7 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            min-width: 100px;
+            min-width: 85px;
         }
 
         .control-group label {
@@ -79,7 +78,7 @@
 
         .pro-group {
             flex: 0;
-            min-width: 65px;
+            min-width: 55px;
             align-items: center;
             justify-content: center;
         }
@@ -106,8 +105,8 @@
         }
 
         select, button, input[type="text"] {
-            padding: 10px;
-            font-size: 14px;
+            padding: 9px;
+            font-size: 13px;
             border: none;
             border-radius: 6px;
             background-color: #444;
@@ -126,7 +125,7 @@
             font-weight: bold;
             cursor: pointer;
             flex: 1;
-            min-width: 100px;
+            min-width: 90px;
             box-shadow: 0 3px 6px rgba(76, 175, 80, 0.3);
             transition: transform 0.1s, background 0.2s;
         }
@@ -153,7 +152,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             width: 100%;
-            max-width: 510px;
+            max-width: 530px;
             margin-bottom: 15px;
             text-align: center;
         }
@@ -187,7 +186,7 @@
         }
 
         #prompt {
-            font-size: clamp(24px, 7vw, 32px);
+            font-size: clamp(20px, 6vw, 28px);
             color: #ffeb3b;
             font-weight: 800;
             text-align: center;
@@ -196,17 +195,84 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        #feedback {
-            font-size: 14px;
-            min-height: 20px;
+        #feedbackContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 15px;
-            font-weight: bold;
-            text-align: center;
-            transition: all 0.2s;
             max-width: 90vw;
         }
 
-        /* Responsive Chessboard Container */
+        #feedback {
+            font-size: 14px;
+            min-height: 20px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .review-nav-bar {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 530px;
+        }
+
+        .review-nav-bar.active {
+            display: flex;
+        }
+
+        .review-nav-btn {
+            background: #444;
+            color: #fff;
+            border: 1px solid #666;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: background 0.15s;
+        }
+
+        .review-nav-btn:hover:not(:disabled) {
+            background: #555;
+        }
+
+        .review-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .review-nav-btn.exit-review {
+            background: #d32f2f;
+            border-color: #f44336;
+        }
+
+        #reviewTriggerBtn {
+            display: none;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(255, 152, 0, 0.4);
+            transition: transform 0.1s;
+        }
+
+        #reviewTriggerBtn:active {
+            transform: scale(0.95);
+        }
+
         .board-container {
             display: grid;
             grid-template-columns: var(--label-size) repeat(8, var(--square-size));
@@ -227,6 +293,89 @@
             justify-content: center;
             cursor: pointer;
             transition: background-color 0.15s ease;
+            position: relative;
+        }
+
+        .piece {
+            font-size: clamp(28px, 8vw, 46px);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+            display: inline-block;
+            transform: translateY(-1px);
+            transition: transform 0.15s ease, color 0.15s ease;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .square.review-user-choice-correct {
+            box-shadow: inset 0 0 0 4px #4caf50 !important;
+            background-color: rgba(76, 175, 80, 0.25) !important;
+        }
+
+        .square.review-user-choice-wrong {
+            box-shadow: inset 0 0 0 4px #f44336 !important;
+            background-color: rgba(244, 67, 54, 0.25) !important;
+        }
+
+        .square.review-attacker-sq {
+            box-shadow: inset 0 0 0 3px #ff9800 !important;
+        }
+
+        .attack-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(244, 67, 54, 0.9);
+            color: white;
+            font-size: clamp(9px, 2.5vw, 11px);
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+
+        .board-container.style-vector .piece.black-piece {
+            color: #121212;
+            text-shadow: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+        }
+
+        .board-container.style-vector .piece.white-piece {
+            color: #ffffff;
+            text-shadow: -1px -1px 0 #121212, 1px -1px 0 #121212, -1px 1px 0 #121212, 1px 1px 0 #121212;
+        }
+
+        .board-container.style-outline .piece.black-piece {
+            color: #1a1d20;
+            text-shadow: -1px -1px 0 #4dabf7, 1px -1px 0 #4dabf7, -1px 1px 0 #4dabf7, 1px 1px 0 #4dabf7;
+        }
+
+        .board-container.style-outline .piece.white-piece {
+            color: #e7f5ff;
+            text-shadow: -1px -1px 0 #1864ab, 1px -1px 0 #1864ab, -1px 1px 0 #1864ab, 1px 1px 0 #1864ab;
+        }
+
+        .board-container.style-minimal .piece.black-piece {
+            color: #181818;
+            text-shadow: -1px -1px 0 #ffd43b, 1px -1px 0 #ffd43b, -1px 1px 0 #ffd43b, 1px 1px 0 #ffd43b;
+        }
+
+        .board-container.style-minimal .piece.white-piece {
+            color: #fff9db;
+            text-shadow: -1px -1px 0 #212529, 1px -1px 0 #212529, -1px 1px 0 #212529, 1px 1px 0 #212529;
+        }
+
+        .board-container.style-slate .piece.black-piece {
+            color: #000000;
+            text-shadow: -1.5px -1.5px 0 #f8f9fa, 1.5px -1.5px 0 #f8f9fa, -1.5px 1.5px 0 #f8f9fa, 1.5px 1.5px 0 #f8f9fa;
+        }
+
+        .board-container.style-slate .piece.white-piece {
+            color: #ffffff;
+            text-shadow: -1.5px -1.5px 0 #000000, 1.5px -1.5px 0 #000000, -1.5px 1.5px 0 #000000, 1.5px 1.5px 0 #000000;
         }
 
         .light { background-color: var(--light-square); }
@@ -247,91 +396,35 @@
             pointer-events: none;
         }
 
-        /* Modal Popup UI */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease;
         }
 
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
         .modal-card {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 380px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: var(--card-bg); padding: 25px; border-radius: 16px;
+            width: 90%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             border: 1px solid #444;
         }
 
-        .modal-card h2 {
-            margin-top: 0;
-            font-size: 20px;
-            color: #ffeb3b;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .modal-card h2 { margin-top: 0; font-size: 20px; color: #ffeb3b; text-align: center; margin-bottom: 20px; }
+        .modal-divider { text-align: center; margin: 15px 0; font-size: 11px; text-transform: uppercase; color: #777; letter-spacing: 2px; }
 
-        .modal-divider {
-            text-align: center;
-            margin: 15px 0;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #777;
-            letter-spacing: 2px;
-        }
+        .correct-flash { background-color: #4caf50 !important; animation: flash-glow 0.3s ease-out; }
+        .wrong-flash { background-color: #f44336 !important; animation: flash-glow 0.3s ease-out; }
 
-        /* Visual Polish Animations */
-        .correct-flash {
-            background-color: #4caf50 !important;
-            animation: flash-glow 0.3s ease-out;
-        }
-
-        .wrong-flash {
-            background-color: #f44336 !important;
-            animation: flash-glow 0.3s ease-out;
-        }
-
-        @keyframes flash-glow {
-            0% { filter: brightness(1.5); }
-            100% { filter: brightness(1); }
-        }
-
-        .animate-pop {
-            animation: score-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes score-pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
-
-        .timer-panic {
-            color: var(--penalty-color) !important;
-            animation: pulse-panic 0.8s infinite alternate;
-        }
-
-        @keyframes pulse-panic {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
+        @keyframes flash-glow { 0% { filter: brightness(1.5); } 100% { filter: brightness(1); } }
+        .animate-pop { animation: score-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes score-pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .timer-panic { color: var(--penalty-color) !important; animation: pulse-panic 0.8s infinite alternate; }
+        @keyframes pulse-panic { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
     </style>
 </head>
 <body>
@@ -344,6 +437,15 @@
             <select id="gameMode">
                 <option value="columns">1: Columns (a-h)</option>
                 <option value="full">2: Full Grid</option>
+                <option value="attack">3: Attack Detection</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="playerSide">Side</label>
+            <select id="playerSide">
+                <option value="white">White</option>
+                <option value="black">Black</option>
             </select>
         </div>
 
@@ -353,6 +455,16 @@
                 <option value="none">Untimed</option>
                 <option value="30">30s Blitz</option>
                 <option value="60">60s Standard</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="pieceStyle">Style</label>
+            <select id="pieceStyle">
+                <option value="vector">Classic Vector</option>
+                <option value="outline">Sharp Outline</option>
+                <option value="minimal">Crisp Minimal</option>
+                <option value="slate">High Contrast</option>
             </select>
         </div>
 
@@ -384,26 +496,33 @@
     </div>
 
     <div id="prompt">Tap Start!</div>
-    <div id="feedback">Ready to practice?</div>
+    
+    <div id="feedbackContainer">
+        <div id="feedback">Ready to practice?</div>
+        <button id="reviewTriggerBtn">Review Game 🔍</button>
+    </div>
 
-    <div class="board-container" id="board"></div>
+    <div id="reviewNavBar" class="review-nav-bar">
+        <button id="prevReviewBtn" class="review-nav-btn">◀ Prev</button>
+        <span id="reviewTurnIndicator" style="font-size: 13px; font-weight: bold;">Turn 1/1</span>
+        <button id="nextReviewBtn" class="review-nav-btn">Next ▶</button>
+        <button id="exitReviewBtn" class="review-nav-btn exit-review">Close</button>
+    </div>
+
+    <div class="board-container style-vector" id="board"></div>
 
     <div id="userModal" class="modal-overlay">
         <div class="modal-card">
             <h2>Select Profile</h2>
-            
             <div class="control-group">
                 <label for="existingUsersSelect">Saved Users</label>
                 <select id="existingUsersSelect"></select>
             </div>
-
             <div class="modal-divider">or</div>
-
             <div class="control-group">
                 <label for="newUsernameInput">Create New Profile</label>
                 <input type="text" id="newUsernameInput" placeholder="Enter name..." maxlength="12">
             </div>
-
             <button id="modalConfirmBtn" class="action-btn" style="margin-top: 20px;">Save & Play</button>
         </div>
     </div>
@@ -412,14 +531,22 @@
         const board = document.getElementById('board');
         const startBtn = document.getElementById('startBtn');
         const gameModeSelect = document.getElementById('gameMode');
+        const playerSideSelect = document.getElementById('playerSide');
         const timerModeSelect = document.getElementById('timerMode');
+        const pieceStyleSelect = document.getElementById('pieceStyle');
         const proModeCheck = document.getElementById('proMode');
         const scoreDisplay = document.getElementById('score');
         const highScoreDisplay = document.getElementById('highScore');
         const promptDisplay = document.getElementById('prompt');
         const feedbackDisplay = document.getElementById('feedback');
         
-        // Profile Management Elements
+        const reviewTriggerBtn = document.getElementById('reviewTriggerBtn');
+        const reviewNavBar = document.getElementById('reviewNavBar');
+        const prevReviewBtn = document.getElementById('prevReviewBtn');
+        const nextReviewBtn = document.getElementById('nextReviewBtn');
+        const exitReviewBtn = document.getElementById('exitReviewBtn');
+        const reviewTurnIndicator = document.getElementById('reviewTurnIndicator');
+
         const userModal = document.getElementById('userModal');
         const existingUsersSelect = document.getElementById('existingUsersSelect');
         const newUsernameInput = document.getElementById('newUsernameInput');
@@ -433,14 +560,45 @@
 
         let score = 0;
         let currentPrompt = '';
+        let currentBoardState = {};
+        let activeAttacks = [];
         let isPlaying = false;
         let timerInterval = null;
         let timeLeft = 0;
         let currentUser = 'Guest';
         let allUsers = ['Guest'];
 
+        let gameHistory = [];
+        let isReviewMode = false;
+        let currentReviewIndex = 0;
+
         const positivePhrases = ["Magnus would be proud!", "Excellent vision!", "Spot on!", "Genius!", "Speedy calculations! ⚡"];
         const motivationPhrases = ["Shake it off, try again!", "Keep pushing your boundaries!", "Consistency beats talent!", "Almost had it! Keep practicing."];
+
+        const WHITE_PIECES = ['♔', '♕', '♖', '♗', '♘', '♙'];
+        const BLACK_PIECES = ['♚', '♛', '♜', '♝', '♞', '♟'];
+
+        function isWhite(piece) { return WHITE_PIECES.includes(piece); }
+        function isBlack(piece) { return BLACK_PIECES.includes(piece); }
+
+        function getPieceMeta(piece) {
+            switch(piece) {
+                case '♙': case '♟': return { type: 'pawn', val: 10, name: 'Pawn' };
+                case '♘': case '♞': return { type: 'knight', val: 30, name: 'Knight' };
+                case '♗': case '♝': return { type: 'bishop', val: 30, name: 'Bishop' };
+                case '♖': case '♜': return { type: 'rook', val: 50, name: 'Rook' };
+                case '♕': case '♛': return { type: 'queen', val: 90, name: 'Queen' };
+                case '♔': case '♚': return { type: 'king', val: 100, name: 'King' };
+                default: return { type: null, val: 0, name: 'Piece' };
+            }
+        }
+
+        function applyPieceStyleTheme() {
+            const selectedStyle = pieceStyleSelect.value || 'vector';
+            board.classList.remove('style-vector', 'style-outline', 'style-minimal', 'style-slate');
+            board.classList.add(`style-${selectedStyle}`);
+            localStorage.setItem('chess_piece_style', selectedStyle);
+        }
 
         function generateBoard() {
             board.innerHTML = '';
@@ -477,11 +635,347 @@
             }
         }
 
+        /* --- FIDE CHESS RULE VALIDATION UTILITIES --- */
+
+        function pieceMapToGrid(pieceMap) {
+            const grid = Array(8).fill(null).map(() => Array(8).fill(null));
+            for (const [coord, piece] of Object.entries(pieceMap)) {
+                const c = files.indexOf(coord[0]);
+                const r = ranks.indexOf(coord[1]);
+                if (r !== -1 && c !== -1) {
+                    grid[r][c] = piece;
+                }
+            }
+            return grid;
+        }
+
+        function isSquareAttackedBy(grid, tr, tc, attackerColor) {
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = grid[r][c];
+                    if (!piece) continue;
+                    const pColor = isWhite(piece) ? 'white' : 'black';
+                    if (pColor !== attackerColor) continue;
+
+                    const meta = getPieceMeta(piece);
+
+                    if (meta.type === 'pawn') {
+                        const dir = (attackerColor === 'white') ? -1 : 1;
+                        if (r + dir === tr && (c - 1 === tc || c + 1 === tc)) return true;
+                    }
+                    else if (meta.type === 'knight') {
+                        const dr = Math.abs(r - tr);
+                        const dc = Math.abs(c - tc);
+                        if ((dr === 1 && dc === 2) || (dr === 2 && dc === 1)) return true;
+                    }
+                    else if (meta.type === 'king') {
+                        const dr = Math.abs(r - tr);
+                        const dc = Math.abs(c - tc);
+                        if (dr <= 1 && dc <= 1) return true;
+                    }
+                    else {
+                        const dr = Math.sign(tr - r);
+                        const dc = Math.sign(tc - c);
+                        const absDr = Math.abs(tr - r);
+                        const absDc = Math.abs(tc - c);
+
+                        let validLine = false;
+                        if (meta.type === 'rook' && (absDr === 0 || absDc === 0)) validLine = true;
+                        if (meta.type === 'bishop' && (absDr === absDc)) validLine = true;
+                        if (meta.type === 'queen' && (absDr === 0 || absDc === 0 || absDr === absDc)) validLine = true;
+
+                        if (validLine) {
+                            let cr = r + dr;
+                            let cc = c + dc;
+                            let blocked = false;
+                            while (cr !== tr || cc !== tc) {
+                                if (grid[cr][cc] !== null) {
+                                    blocked = true;
+                                    break;
+                                }
+                                cr += dr;
+                                cc += dc;
+                            }
+                            if (!blocked) return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function isPieceDefended(grid, r, c) {
+            const piece = grid[r][c];
+            if (!piece) return false;
+            const color = isWhite(piece) ? 'white' : 'black';
+            return isSquareAttackedBy(grid, r, c, color);
+        }
+
+        function canPieceAttackSquare(grid, ar, ac, tr, tc) {
+            const p = grid[ar][ac];
+            if (!p) return false;
+            const color = isWhite(p) ? 'white' : 'black';
+            const meta = getPieceMeta(p);
+
+            if (meta.type === 'knight') {
+                const dr = Math.abs(ar - tr);
+                const dc = Math.abs(ac - tc);
+                return (dr === 1 && dc === 2) || (dr === 2 && dc === 1);
+            }
+            if (meta.type === 'pawn') {
+                const dir = (color === 'white') ? -1 : 1;
+                return ar + dir === tr && (ac - 1 === tc || ac + 1 === tc);
+            }
+            if (meta.type === 'king') {
+                const dr = Math.abs(ar - tr);
+                const dc = Math.abs(ac - tc);
+                return dr <= 1 && dc <= 1;
+            }
+            
+            const dr = Math.sign(tr - ar);
+            const dc = Math.sign(tc - ac);
+            const absDr = Math.abs(tr - ar);
+            const absDc = Math.abs(tc - ac);
+
+            let validLine = false;
+            if (meta.type === 'rook' && (absDr === 0 || absDc === 0)) validLine = true;
+            if (meta.type === 'bishop' && (absDr === absDc)) validLine = true;
+            if (meta.type === 'queen' && (absDr === 0 || absDc === 0 || absDr === absDc)) validLine = true;
+
+            if (!validLine) return false;
+
+            let cr = ar + dr;
+            let cc = ac + dc;
+            while (cr !== tr || cc !== tc) {
+                if (grid[cr][cc] !== null) return false;
+                cr += dr;
+                cc += dc;
+            }
+            return true;
+        }
+
+        /* Enforce FIDE Position Legality Rules */
+        function isBoardPositionLegal(pieceMap, playerSide = 'white') {
+            const grid = pieceMapToGrid(pieceMap);
+            const oppColor = playerSide === 'white' ? 'black' : 'white';
+            const playerColor = playerSide;
+
+            let wKing = null, bKing = null;
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const p = grid[r][c];
+                    if (!p) continue;
+                    if (p === '♔') wKing = { r, c };
+                    if (p === '♚') bKing = { r, c };
+
+                    if ((p === '♙' || p === '♟') && (r === 0 || r === 7)) {
+                        return false;
+                    }
+                }
+            }
+
+            if (!wKing || !bKing) return false;
+
+            const playerKingPos = playerColor === 'white' ? wKing : bKing;
+            const oppKingPos = oppColor === 'white' ? wKing : bKing;
+
+            // 1. Kings distance rule
+            const kDist = Math.max(Math.abs(wKing.r - bKing.r), Math.abs(wKing.c - bKing.c));
+            if (kDist <= 1) return false;
+
+            // 2. Opponent King cannot be in check
+            if (isSquareAttackedBy(grid, oppKingPos.r, oppKingPos.c, playerColor)) {
+                return false;
+            }
+
+            // 3. Prevent arbitrary double check on player King
+            let playerKingCheckers = 0;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const p = grid[r][c];
+                    if (!p) continue;
+                    const color = isWhite(p) ? 'white' : 'black';
+                    if (color !== oppColor) continue;
+
+                    if (canPieceAttackSquare(grid, r, c, playerKingPos.r, playerKingPos.c)) {
+                        playerKingCheckers++;
+                    }
+                }
+            }
+
+            if (playerKingCheckers > 1) {
+                return false;
+            }
+
+            return true;
+        }
+
+        /* Scan board for valid legal attacks launched by opponent against player */
+        function analyzeAttacks(pieceMap, playerSide = 'white') {
+            const grid = pieceMapToGrid(pieceMap);
+            const oppColor = playerSide === 'white' ? 'black' : 'white';
+            const playerColor = playerSide;
+            let attacks = [];
+
+            for (let ar = 0; ar < 8; ar++) {
+                for (let ac = 0; ac < 8; ac++) {
+                    const attPiece = grid[ar][ac];
+                    if (!attPiece) continue;
+                    const attColor = isWhite(attPiece) ? 'white' : 'black';
+                    if (attColor !== oppColor) continue;
+
+                    const attMeta = getPieceMeta(attPiece);
+                    const attackerSq = files[ac] + ranks[ar];
+
+                    for (let tr = 0; tr < 8; tr++) {
+                        for (let tc = 0; tc < 8; tc++) {
+                            if (ar === tr && ac === tc) continue;
+                            const tgtPiece = grid[tr][tc];
+                            if (!tgtPiece) continue;
+                            const tgtColor = isWhite(tgtPiece) ? 'white' : 'black';
+                            if (tgtColor !== playerColor) continue;
+
+                            const targetSq = files[tc] + ranks[tr];
+                            const tgtMeta = getPieceMeta(tgtPiece);
+
+                            let isAttacking = false;
+
+                            if (attMeta.type === 'knight') {
+                                const dr = Math.abs(ar - tr);
+                                const dc = Math.abs(ac - tc);
+                                if ((dr === 1 && dc === 2) || (dr === 2 && dc === 1)) isAttacking = true;
+                            } 
+                            else if (attMeta.type === 'pawn') {
+                                const dir = (oppColor === 'white') ? -1 : 1;
+                                if (ar + dir === tr && (ac - 1 === tc || ac + 1 === tc)) isAttacking = true;
+                            } 
+                            else if (attMeta.type === 'king') {
+                                const dr = Math.abs(ar - tr);
+                                const dc = Math.abs(ac - tc);
+                                if (dr <= 1 && dc <= 1) {
+                                    // King CANNOT attack/threaten a piece if that piece is DEFENDED by an ally
+                                    if (!isPieceDefended(grid, tr, tc)) {
+                                        isAttacking = true;
+                                    }
+                                }
+                            } 
+                            else {
+                                const dr = Math.sign(tr - ar);
+                                const dc = Math.sign(tc - ac);
+                                const absDr = Math.abs(tr - ar);
+                                const absDc = Math.abs(tc - ac);
+
+                                let validLine = false;
+                                if (attMeta.type === 'rook' && (absDr === 0 || absDc === 0)) validLine = true;
+                                if (attMeta.type === 'bishop' && (absDr === absDc)) validLine = true;
+                                if (attMeta.type === 'queen' && (absDr === 0 || absDc === 0 || absDr === absDc)) validLine = true;
+
+                                if (validLine) {
+                                    let cr = ar + dr;
+                                    let cc = ac + dc;
+                                    let blocked = false;
+                                    while (cr !== tr || cc !== tc) {
+                                        if (grid[cr][cc] !== null) {
+                                            blocked = true;
+                                            break;
+                                        }
+                                        cr += dr;
+                                        cc += dc;
+                                    }
+                                    if (!blocked) isAttacking = true;
+                                }
+                            }
+
+                            if (isAttacking) {
+                                attacks.push({
+                                    attackerSq,
+                                    targetSq,
+                                    attackerPiece: attPiece,
+                                    targetPiece: tgtPiece,
+                                    value: tgtMeta.val,
+                                    targetName: tgtMeta.name
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return attacks;
+        }
+
+        /* Board generator with legal position re-roll loop */
+        function generateValidAttackScenario(playerSide = 'white') {
+            let maxAttempts = 500;
+
+            while (maxAttempts-- > 0) {
+                let pieceMap = {};
+
+                let wr = Math.floor(Math.random() * 8);
+                let wc = Math.floor(Math.random() * 8);
+                let br = Math.floor(Math.random() * 8);
+                let bc = Math.floor(Math.random() * 8);
+
+                if (Math.max(Math.abs(wr - br), Math.abs(wc - bc)) <= 1) continue;
+
+                pieceMap[files[wc] + ranks[wr]] = '♔';
+                pieceMap[files[bc] + ranks[br]] = '♚';
+
+                let piecePool = [
+                    '♕', '♖', '♖', '♗_L', '♗_D', '♘', '♘', '♙', '♙', '♙',
+                    '♛', '♜', '♜', '♝_L', '♝_D', '♞', '♞', '♟', '♟', '♟'
+                ];
+                piecePool.sort(() => Math.random() - 0.5);
+
+                let placed = 0;
+                let targetCount = Math.floor(Math.random() * 5) + 6;
+
+                for (let item of piecePool) {
+                    if (placed >= targetCount) break;
+
+                    let attempts = 0;
+                    while (attempts < 20) {
+                        attempts++;
+                        let rx = Math.floor(Math.random() * 8);
+                        let ry = Math.floor(Math.random() * 8);
+                        let sq = files[rx] + ranks[ry];
+
+                        if (pieceMap[sq]) continue;
+
+                        let isLight = (rx + ry) % 2 === 0;
+
+                        if (item === '♗_L' && !isLight) continue;
+                        if (item === '♗_D' && isLight) continue;
+                        if (item === '♝_L' && !isLight) continue;
+                        if (item === '♝_D' && isLight) continue;
+                        
+                        if ((item === '♙' || item === '♟') && (ry === 0 || ry === 7)) continue;
+
+                        let actualSymbol = item.replace('_L', '').replace('_D', '');
+                        pieceMap[sq] = actualSymbol;
+                        placed++;
+                        break;
+                    }
+                }
+
+                if (!isBoardPositionLegal(pieceMap, playerSide)) continue;
+
+                let attacks = analyzeAttacks(pieceMap, playerSide);
+
+                if (attacks.length >= 1 && attacks.length <= 4) {
+                    return { pieceMap, attacks };
+                }
+            }
+
+            return generateValidAttackScenario(playerSide); 
+        }
+
         function getScoreKeySuffix() {
             const level = gameModeSelect.value;
+            const side = playerSideSelect.value;
             const proStatus = proModeCheck.checked ? 'pro' : 'standard';
             const timerSetting = timerModeSelect.value;
-            return `_${level}_${proStatus}_t${timerSetting}`;
+            return `_${level}_${side}_${proStatus}_t${timerSetting}`;
         }
 
         function getGlobalHighScoreDetails() {
@@ -512,33 +1006,10 @@
 
         function evaluateLiveProgress(currentRunningScore) {
             const globalBest = getGlobalHighScoreDetails();
-            const suffix = getScoreKeySuffix();
             
             if (globalBest.score > 0 && currentRunningScore > globalBest.score && globalBest.owner !== currentUser) {
-                return `🔥 UNSTOPPABLE! You just beat ${globalBest.owner}'s record! 🔥`;
+                return `🔥 UNSTOPPABLE! New top record! 🔥`;
             }
-            if (globalBest.score > 0 && currentRunningScore === globalBest.score && globalBest.owner !== currentUser) {
-                return `👑 Tied with ${globalBest.owner} for the crown! Next point wins! 👑`;
-            }
-            if (globalBest.score > 0 && currentRunningScore < globalBest.score && (globalBest.score - currentRunningScore) <= 20) {
-                return `🚀 Just ${globalBest.score - currentRunningScore} pts away from beating ${globalBest.owner}!`;
-            }
-            
-            let overtakenTarget = null;
-            for (let i = 0; i < allUsers.length; i++) {
-                const u = allUsers[i];
-                if (u !== currentUser) {
-                    const uScore = parseInt(localStorage.getItem(`chess_user_score_${u}${suffix}`)) || 0;
-                    if (uScore > 0 && currentRunningScore === uScore + 10) {
-                        overtakenTarget = u;
-                        break;
-                    }
-                }
-            }
-            if (overtakenTarget) {
-                return `⚡ Boom! You just passed ${overtakenTarget}'s score!`;
-            }
-
             return positivePhrases[Math.floor(Math.random() * positivePhrases.length)];
         }
 
@@ -552,9 +1023,13 @@
             }
             
             const savedProfile = localStorage.getItem('chess_trainer_current_profile');
+            const savedStyle = localStorage.getItem('chess_piece_style');
+            if (savedStyle) {
+                pieceStyleSelect.value = savedStyle;
+            }
+            applyPieceStyleTheme();
             populateModalDropdown();
 
-            // Automatic Modal Trigger: Opens up if no historical profile cookie/session exists
             if (!savedProfile) {
                 currentUser = allUsers[0];
                 activeUserDisplay.innerText = currentUser;
@@ -578,6 +1053,7 @@
 
         function showUserModal() {
             if (isPlaying) endGame();
+            if (isReviewMode) exitReview();
             newUsernameInput.value = '';
             populateModalDropdown();
             userModal.classList.add('active');
@@ -606,13 +1082,25 @@
         }
 
         function startGame() {
+            if (isReviewMode) exitReview();
             clearInterval(timerInterval);
+            
+            gameHistory = [];
+            reviewTriggerBtn.style.display = 'none';
+
             userLabelCard.innerText = timerModeSelect.value !== 'none' ? "Time" : "Player";
             
             score = 0;
             isPlaying = true;
             scoreDisplay.innerText = score;
-            feedbackDisplay.innerText = proModeCheck.checked ? "Pro Mode Active! Trust your spatial grid memory." : "Find them fast!";
+
+            if (gameModeSelect.value === 'attack') {
+                const sideText = playerSideSelect.value.toUpperCase();
+                feedbackDisplay.innerText = `Playing as ${sideText}! Detect opponent attacks on your pieces. (Q=90, R=50, B/N=30, P=10)`;
+            } else {
+                feedbackDisplay.innerText = proModeCheck.checked ? "Pro Mode Active! Trust your grid memory." : "Find them fast!";
+            }
+            
             feedbackDisplay.style.color = '#fff';
             
             const timerSetting = timerModeSelect.value;
@@ -650,6 +1138,8 @@
             userLabelCard.innerText = "Player";
             promptDisplay.innerText = "Game Over!";
             
+            document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
+            
             const suffix = getScoreKeySuffix();
             const personalRecordKey = `chess_user_score_${currentUser}${suffix}`;
             const personalBest = parseInt(localStorage.getItem(personalRecordKey)) || 0;
@@ -660,7 +1150,7 @@
 
             const globalBest = getGlobalHighScoreDetails();
             if (score >= globalBest.score && score > 0) {
-                feedbackDisplay.innerText = `👑 Match Complete! Top of the leaderboard with ${score}!`;
+                feedbackDisplay.innerText = `👑 Match Complete! High Score: ${score}!`;
                 feedbackDisplay.style.color = '#ffeb3b';
                 triggerElementPop(highScoreDisplay);
             } else {
@@ -668,15 +1158,48 @@
                 feedbackDisplay.innerText = `Finished! Score: ${score}. ${randomMotivation}`;
                 feedbackDisplay.style.color = '#aaa';
             }
+
+            if (gameModeSelect.value === 'attack' && timerModeSelect.value !== 'none' && gameHistory.length > 0) {
+                reviewTriggerBtn.style.display = 'inline-block';
+            }
             
             updateHighScoreView();
+        }
+
+        function renderPiecesOnBoard(pieceMap) {
+            document.querySelectorAll('.square').forEach(sq => {
+                sq.innerHTML = '';
+                sq.className = sq.className.split(' ').filter(c => c === 'square' || c === 'light' || c === 'dark').join(' ');
+            });
+
+            for (const [coord, piece] of Object.entries(pieceMap)) {
+                const sqEl = document.querySelector(`[data-coord="${coord}"]`);
+                if (sqEl) {
+                    const colorClass = isWhite(piece) ? 'white-piece' : 'black-piece';
+                    sqEl.innerHTML = `<span class="piece ${colorClass}">${piece}</span>`;
+                }
+            }
         }
 
         function nextQuestion() {
             if (!isPlaying) return;
             const mode = gameModeSelect.value;
             
-            if (mode === 'columns') {
+            document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
+
+            if (mode === 'attack') {
+                const playerSide = playerSideSelect.value;
+                const scenario = generateValidAttackScenario(playerSide);
+                currentBoardState = scenario.pieceMap;
+                activeAttacks = scenario.attacks;
+                
+                renderPiecesOnBoard(currentBoardState);
+                
+                let attackCount = activeAttacks.length;
+                const oppColor = playerSide === 'white' ? 'Black' : 'White';
+                promptDisplay.innerText = `${oppColor} Threat! (${attackCount} Target${attackCount > 1 ? 's' : ''})`;
+
+            } else if (mode === 'columns') {
                 const randomFile = files[Math.floor(Math.random() * files.length)];
                 currentPrompt = randomFile;
                 promptDisplay.innerText = `Column: ${randomFile.toUpperCase()}`;
@@ -689,18 +1212,48 @@
         }
 
         function handleSquareClick(e) {
-            if (!isPlaying) return;
+            if (!isPlaying || isReviewMode) return;
 
-            const clickedSquare = e.target;
+            const clickedSquare = e.target.closest('.square') || e.target;
             const clickedFile = clickedSquare.dataset.file;
             const clickedCoord = clickedSquare.dataset.coord;
             const mode = gameModeSelect.value;
             
-            let isCorrect = (mode === 'columns') ? (clickedFile === currentPrompt) : (clickedCoord === currentPrompt);
+            let isCorrect = false;
+            let pointsEarned = 10;
+            let pointsLost = 5;
+
+            if (mode === 'columns') {
+                isCorrect = (clickedFile === currentPrompt);
+            } else if (mode === 'full') {
+                isCorrect = (clickedCoord === currentPrompt);
+            } else if (mode === 'attack') {
+                let matchedAttacks = activeAttacks.filter(a => a.targetSq === clickedCoord || a.attackerSq === clickedCoord);
+                
+                if (matchedAttacks.length > 0) {
+                    isCorrect = true;
+                    matchedAttacks.sort((a, b) => b.value - a.value);
+                    let bestMatch = matchedAttacks[0];
+                    pointsEarned = bestMatch.value;
+                    feedbackDisplay.innerText = `🎯 Threat Detected! Identified ${bestMatch.targetName} target (+${pointsEarned} pts)!`;
+                }
+
+                if (timerModeSelect.value !== 'none') {
+                    gameHistory.push({
+                        boardState: JSON.parse(JSON.stringify(currentBoardState)),
+                        attacks: JSON.parse(JSON.stringify(activeAttacks)),
+                        clickedCoord: clickedCoord,
+                        isCorrect: isCorrect,
+                        pointsGained: isCorrect ? pointsEarned : -pointsLost
+                    });
+                }
+            }
 
             if (isCorrect) {
-                score += 10;
-                feedbackDisplay.innerText = evaluateLiveProgress(score);
+                score += pointsEarned;
+                if (mode !== 'attack') {
+                    feedbackDisplay.innerText = evaluateLiveProgress(score);
+                }
                 feedbackDisplay.style.color = 'var(--accent-color)';
                 triggerElementPop(scoreDisplay);
                 
@@ -711,8 +1264,10 @@
                 }
                 nextQuestion();
             } else {
-                score = Math.max(0, score - 5);
-                feedbackDisplay.innerText = `Oops, that was ${clickedCoord.toUpperCase()} (-5)`;
+                score = Math.max(0, score - pointsLost);
+                feedbackDisplay.innerText = mode === 'attack' 
+                    ? `No active opponent attack at ${clickedCoord.toUpperCase()} (-5)` 
+                    : `Oops, that was ${clickedCoord.toUpperCase()} (-5)`;
                 feedbackDisplay.style.color = 'var(--penalty-color)';
                 triggerElementPop(scoreDisplay);
                 
@@ -724,6 +1279,68 @@
             }
 
             scoreDisplay.innerText = score;
+        }
+
+        /* Review Mode Functions */
+        function startReview() {
+            if (gameHistory.length === 0) return;
+            isReviewMode = true;
+            currentReviewIndex = 0;
+            
+            reviewTriggerBtn.style.display = 'none';
+            reviewNavBar.classList.add('active');
+            
+            renderReviewTurn(currentReviewIndex);
+        }
+
+        function renderReviewTurn(index) {
+            const turnData = gameHistory[index];
+            if (!turnData) return;
+
+            renderPiecesOnBoard(turnData.boardState);
+
+            const clickedSq = document.querySelector(`[data-coord="${turnData.clickedCoord}"]`);
+            if (clickedSq) {
+                clickedSq.classList.add(turnData.isCorrect ? 'review-user-choice-correct' : 'review-user-choice-wrong');
+            }
+
+            turnData.attacks.forEach(att => {
+                const attackerSq = document.querySelector(`[data-coord="${att.attackerSq}"]`);
+                if (attackerSq) {
+                    attackerSq.classList.add('review-attacker-sq');
+                }
+
+                const targetSq = document.querySelector(`[data-coord="${att.targetSq}"]`);
+                if (targetSq) {
+                    const badge = document.createElement('div');
+                    badge.className = 'attack-badge';
+                    badge.innerText = `+${att.value}`;
+                    targetSq.appendChild(badge);
+                }
+            });
+
+            promptDisplay.innerText = `Board Review (${index + 1}/${gameHistory.length})`;
+            const scoreFormatted = turnData.pointsGained >= 0 ? `+${turnData.pointsGained}` : `${turnData.pointsGained}`;
+            feedbackDisplay.innerText = `Clicked ${turnData.clickedCoord.toUpperCase()} (${scoreFormatted} pts) | Targets: ${turnData.attacks.map(a => a.targetSq.toUpperCase()).join(', ')}`;
+            feedbackDisplay.style.color = turnData.isCorrect ? 'var(--accent-color)' : 'var(--penalty-color)';
+
+            reviewTurnIndicator.innerText = `Turn ${index + 1}/${gameHistory.length}`;
+            prevReviewBtn.disabled = (index === 0);
+            nextReviewBtn.disabled = (index === gameHistory.length - 1);
+        }
+
+        function exitReview() {
+            isReviewMode = false;
+            reviewNavBar.classList.remove('active');
+            reviewTriggerBtn.style.display = gameHistory.length > 0 ? 'inline-block' : 'none';
+            
+            promptDisplay.innerText = "Game Over!";
+            feedbackDisplay.innerText = "Ready to practice again?";
+            feedbackDisplay.style.color = "#fff";
+            document.querySelectorAll('.square').forEach(sq => {
+                sq.innerHTML = '';
+                sq.className = sq.className.split(' ').filter(c => c === 'square' || c === 'light' || c === 'dark').join(' ');
+            });
         }
 
         function flashTargetGroup(selector, className) {
@@ -740,29 +1357,51 @@
             element.classList.add('animate-pop');
         }
 
-        // Programmatic Obfuscated Signature System
         (function injectSecureFooter() {
-            const bytecode = [99,114,101,97,116,101,100,32,98,121,32,78,111,122,101,108,32,82,111,115,97,114,105,111];
+            const bytecode = [99,114,101,97,116,101,100,32,98,121,32,78,111,122,101,108,32,82,111,122,97,114,105,111];
             const footerEl = document.createElement('footer');
             footerEl.innerText = String.fromCharCode(...bytecode);
             footerEl.style.cssText = 'font-size: 9px; color: #555; margin-top: 25px; text-align: center; letter-spacing: 0.5px; user-select: none; opacity: 0.6; padding-bottom: 10px;';
             document.body.appendChild(footerEl);
         })();
 
-        // Event Hook Assignments
         startBtn.addEventListener('click', startGame);
         switchUserBtn.addEventListener('click', function(e) {
             e.preventDefault();
             showUserModal();
         });
         modalConfirmBtn.addEventListener('click', handleModalConfirm);
+        pieceStyleSelect.addEventListener('change', applyPieceStyleTheme);
+
+        reviewTriggerBtn.addEventListener('click', startReview);
+        prevReviewBtn.addEventListener('click', () => {
+            if (currentReviewIndex > 0) {
+                currentReviewIndex--;
+                renderReviewTurn(currentReviewIndex);
+            }
+        });
+        nextReviewBtn.addEventListener('click', () => {
+            if (currentReviewIndex < gameHistory.length - 1) {
+                currentReviewIndex++;
+                renderReviewTurn(currentReviewIndex);
+            }
+        });
+        exitReviewBtn.addEventListener('click', exitReview);
 
         gameModeSelect.addEventListener('change', () => {
+            if (isReviewMode) exitReview();
+            updateHighScoreView();
+            if(isPlaying) endGame();
+        });
+
+        playerSideSelect.addEventListener('change', () => {
+            if (isReviewMode) exitReview();
             updateHighScoreView();
             if(isPlaying) endGame();
         });
         
         timerModeSelect.addEventListener('change', () => {
+            if (isReviewMode) exitReview();
             updateHighScoreView();
             if(isPlaying) endGame();
         });
@@ -773,11 +1412,11 @@
             } else {
                 board.classList.remove('pro-mode-active');
             }
+            if (isReviewMode) exitReview();
             updateHighScoreView();
             if(isPlaying) endGame(); 
         });
 
-        // Initialize App
         generateBoard();
         initializeProfiles();
         updateHighScoreView();
