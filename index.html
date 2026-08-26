@@ -586,4 +586,671 @@
 
         function getPieceMeta(piece) {
             switch(piece) {
-                case '♙': case '♟': return { type: 'pawn', val: 10, nam
+                case '♙': case '♟': return { type: 'pawn', val: 10, name: 'Pawn' };
+                case '♘': case '♞': return { type: 'knight', val: 30, name: 'Knight' };
+                case '♗': case '♝': return { type: 'bishop', val: 30, name: 'Bishop' };
+                case '♖': case '♜': return { type: 'rook', val: 50, name: 'Rook' };
+                case '♕': case '♛': return { type: 'queen', val: 90, name: 'Queen' };
+                case '♔': case '♚': return { type: 'king', val: 100, name: 'King' };
+                default: return { type: null, val: 0, name: 'Piece' };
+            }
+        }
+
+        function applyPieceStyleTheme() {
+            const selectedStyle = pieceStyleSelect.value || 'vector';
+            board.classList.remove('style-vector', 'style-outline', 'style-minimal', 'style-slate');
+            board.classList.add(`style-${selectedStyle}`);
+            localStorage.setItem('chess_piece_style', selectedStyle);
+        }
+
+        function generateBoard() {
+            board.innerHTML = '';
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (r < 8 && c === 0) {
+                        const rankLabel = document.createElement('div');
+                        rankLabel.className = 'label';
+                        rankLabel.innerText = ranks[r];
+                        board.appendChild(rankLabel);
+                    } else if (r === 8 && c > 0) {
+                        const fileLabel = document.createElement('div');
+                        fileLabel.className = 'label';
+                        fileLabel.innerText = files[c - 1];
+                        board.appendChild(fileLabel);
+                    } else if (r === 8 && c === 0) {
+                        const emptyLabel = document.createElement('div');
+                        emptyLabel.className = 'label';
+                        board.appendChild(emptyLabel);
+                    } else {
+                        const square = document.createElement('div');
+                        const file = files[c - 1];
+                        const rank = ranks[r];
+                        const isLight = (r + (c - 1)) % 2 === 0;
+                        
+                        square.className = `square ${isLight ? 'light' : 'dark'}`;
+                        square.dataset.file = file;
+                        square.dataset.coord = file + rank;
+                        
+                        square.addEventListener('click', handleSquareClick);
+                        board.appendChild(square);
+                    }
+                }
+            }
+        }
+
+        /* Scan board for valid attacks launched by opponent against player */
+        function analyzeAttacks(pieceMap, playerSide = 'white') {
+            let attacks = [];
+
+            for (let targetSq in pieceMap) {
+                let targetPiece = pieceMap[targetSq];
+                let targetIsWhite = isWhite(targetPiece);
+                
+                let targetIsPlayer = (playerSide === 'white' && targetIsWhite) || (playerSide === 'black' && !targetIsWhite);
+                if (!targetIsPlayer) continue;
+
+                let tx = files.indexOf(targetSq[0]);
+                let ty = ranks.indexOf(targetSq[1]);
+
+                for (let attackerSq in pieceMap) {
+                    if (attackerSq === targetSq) continue;
+                    let attackerPiece = pieceMap[attackerSq];
+                    let attackerIsWhite = isWhite(attackerPiece);
+
+                    let attackerIsOpponent = (playerSide === 'white' && !attackerIsWhite) || (playerSide === 'black' && attackerIsWhite);
+                    if (!attackerIsOpponent) continue;
+
+                    let ax = files.indexOf(attackerSq[0]);
+                    let ay = ranks.indexOf(attackerSq[1]);
+                    let attMeta = getPieceMeta(attackerPiece);
+                    let isAttacking = false;
+
+                    if (attMeta.type === 'knight') {
+                        let dx = Math.abs(ax - tx);
+                        let dy = Math.abs(ay - ty);
+                        if ((dx === 1 && dy === 2) || (dx === 2 && dy === 1)) isAttacking = true;
+                    } 
+                    else if (attMeta.type === 'pawn') {
+                        let dx = Math.abs(ax - tx);
+                        if (attackerIsWhite) {
+                            if (dx === 1 && (ay - ty === 1)) isAttacking = true;
+                        } else {
+                            if (dx === 1 && (ty - ay === 1)) isAttacking = true;
+                        }
+                    } 
+                    else if (attMeta.type === 'king') {
+                        let dx = Math.abs(ax - tx);
+                        let dy = Math.abs(ay - ty);
+                        if (dx <= 1 && dy <= 1) isAttacking = true;
+                    } 
+                    else {
+                        let dx = Math.sign(tx - ax);
+                        let dy = Math.sign(ty - ay);
+                        let absDx = Math.abs(tx - ax);
+                        let absDy = Math.abs(ty - ay);
+
+                        let validDir = false;
+                        if (attMeta.type === 'rook' && (absDx === 0 || absDy === 0)) validDir = true;
+                        if (attMeta.type === 'bishop' && (absDx === absDy)) validDir = true;
+                        if (attMeta.type === 'queen' && (absDx === 0 || absDy === 0 || absDx === absDy)) validDir = true;
+
+                        if (validDir) {
+                            let cx = ax + dx;
+                            let cy = ay + dy;
+                            let blocked = false;
+                            while (cx !== tx || cy !== ty) {
+                                let pathSq = files[cx] + ranks[cy];
+                                if (pieceMap[pathSq]) {
+                                    blocked = true;
+                                    break;
+                                }
+                                cx += dx;
+                                cy += dy;
+                            }
+                            if (!blocked) isAttacking = true;
+                        }
+                    }
+
+                    if (isAttacking) {
+                        let targetMeta = getPieceMeta(targetPiece);
+                        attacks.push({
+                            attackerSq,
+                            targetSq,
+                            attackerPiece,
+                            targetPiece,
+                            value: targetMeta.val,
+                            targetName: targetMeta.name
+                        });
+                    }
+                }
+            }
+            return attacks;
+        }
+
+        /* Board generator respecting piece counts, color complexes, and player side */
+        function generateValidAttackScenario(playerSide = 'white') {
+            let pieceMap = {};
+            let wCounts = { Q: 1, R: 2, B_L: 1, B_D: 1, N: 2, P: 4 };
+            let bCounts = { Q: 1, R: 2, B_L: 1, B_D: 1, N: 2, P: 4 };
+
+            function isLightSquare(x, y) { return (x + y) % 2 === 0; }
+
+            pieceMap['e1'] = '♔';
+            pieceMap['e8'] = '♚';
+
+            let piecePool = [];
+            if (wCounts.Q--) piecePool.push('♕');
+            if (wCounts.R--) piecePool.push('♖');
+            if (wCounts.B_L--) piecePool.push('♗_L');
+            if (wCounts.B_D--) piecePool.push('♗_D');
+            if (wCounts.N--) piecePool.push('♘');
+            for(let i=0; i<3; i++) piecePool.push('♙');
+
+            if (bCounts.Q--) piecePool.push('♛');
+            if (bCounts.R--) piecePool.push('♜');
+            if (bCounts.B_L--) piecePool.push('♝_L');
+            if (bCounts.B_D--) piecePool.push('♝_D');
+            if (bCounts.N--) piecePool.push('♞');
+            for(let i=0; i<3; i++) piecePool.push('♟');
+
+            piecePool.sort(() => Math.random() - 0.5);
+
+            let placed = 0;
+            let targetCount = Math.floor(Math.random() * 5) + 6;
+
+            for (let item of piecePool) {
+                if (placed >= targetCount) break;
+
+                let attempts = 0;
+                while (attempts < 30) {
+                    attempts++;
+                    let rx = Math.floor(Math.random() * 8);
+                    let ry = Math.floor(Math.random() * 8);
+                    let sq = files[rx] + ranks[ry];
+
+                    if (pieceMap[sq]) continue;
+
+                    let isLight = isLightSquare(rx, ry);
+
+                    if (item === '♗_L' && !isLight) continue;
+                    if (item === '♗_D' && isLight) continue;
+                    if (item === '♝_L' && !isLight) continue;
+                    if (item === '♝_D' && isLight) continue;
+                    
+                    if ((item === '♙' || item === '♟') && (ry === 0 || ry === 7)) continue;
+
+                    let actualSymbol = item.replace('_L', '').replace('_D', '');
+                    pieceMap[sq] = actualSymbol;
+                    placed++;
+                    break;
+                }
+            }
+
+            let attacks = analyzeAttacks(pieceMap, playerSide);
+
+            if (attacks.length >= 1 && attacks.length <= 4) {
+                return { pieceMap, attacks };
+            } else {
+                return generateValidAttackScenario(playerSide); 
+            }
+        }
+
+        function getScoreKeySuffix() {
+            const level = gameModeSelect.value;
+            const side = playerSideSelect.value;
+            const proStatus = proModeCheck.checked ? 'pro' : 'standard';
+            const timerSetting = timerModeSelect.value;
+            return `_${level}_${side}_${proStatus}_t${timerSetting}`;
+        }
+
+        function getGlobalHighScoreDetails() {
+            const suffix = getScoreKeySuffix();
+            let topScore = 0;
+            let topOwner = 'None';
+
+            allUsers.forEach(user => {
+                const userScore = parseInt(localStorage.getItem(`chess_user_score_${user}${suffix}`)) || 0;
+                if (userScore > topScore) {
+                    topScore = userScore;
+                    topOwner = user;
+                }
+            });
+
+            return { score: topScore, owner: topOwner };
+        }
+
+        function updateHighScoreView() {
+            const globalBest = getGlobalHighScoreDetails();
+            if (globalBest.score === 0) {
+                highScoreDisplay.innerText = "0";
+            } else {
+                const displayName = globalBest.owner === currentUser ? "You" : globalBest.owner;
+                highScoreDisplay.innerText = `${globalBest.score} (${displayName})`;
+            }
+        }
+
+        function evaluateLiveProgress(currentRunningScore) {
+            const globalBest = getGlobalHighScoreDetails();
+            
+            if (globalBest.score > 0 && currentRunningScore > globalBest.score && globalBest.owner !== currentUser) {
+                return `🔥 UNSTOPPABLE! New top record! 🔥`;
+            }
+            return positivePhrases[Math.floor(Math.random() * positivePhrases.length)];
+        }
+
+        function initializeProfiles() {
+            const storedUsers = localStorage.getItem('chess_trainer_profiles');
+            if (storedUsers) {
+                allUsers = JSON.parse(storedUsers);
+            } else {
+                allUsers = ['Guest'];
+                localStorage.setItem('chess_trainer_profiles', JSON.stringify(allUsers));
+            }
+            
+            const savedProfile = localStorage.getItem('chess_trainer_current_profile');
+            const savedStyle = localStorage.getItem('chess_piece_style');
+            if (savedStyle) {
+                pieceStyleSelect.value = savedStyle;
+            }
+            applyPieceStyleTheme();
+            populateModalDropdown();
+
+            if (!savedProfile) {
+                currentUser = allUsers[0];
+                activeUserDisplay.innerText = currentUser;
+                setTimeout(showUserModal, 150); 
+            } else {
+                currentUser = allUsers.includes(savedProfile) ? savedProfile : allUsers[0];
+                activeUserDisplay.innerText = currentUser;
+            }
+        }
+
+        function populateModalDropdown() {
+            existingUsersSelect.innerHTML = '';
+            allUsers.forEach(user => {
+                const opt = document.createElement('option');
+                opt.value = user;
+                opt.innerText = user;
+                if (user === currentUser) opt.selected = true;
+                existingUsersSelect.appendChild(opt);
+            });
+        }
+
+        function showUserModal() {
+            if (isPlaying) endGame();
+            if (isReviewMode) exitReview();
+            newUsernameInput.value = '';
+            populateModalDropdown();
+            userModal.classList.add('active');
+        }
+
+        function handleModalConfirm() {
+            let selectedUser = existingUsersSelect.value;
+            const newName = newUsernameInput.value.trim();
+
+            if (newName !== "") {
+                if (allUsers.includes(newName)) {
+                    selectedUser = newName;
+                } else {
+                    allUsers.push(newName);
+                    localStorage.setItem('chess_trainer_profiles', JSON.stringify(allUsers));
+                    selectedUser = newName;
+                }
+            }
+
+            currentUser = selectedUser;
+            localStorage.setItem('chess_trainer_current_profile', currentUser);
+            activeUserDisplay.innerText = currentUser;
+            
+            userModal.classList.remove('active');
+            updateHighScoreView();
+        }
+
+        function startGame() {
+            if (isReviewMode) exitReview();
+            clearInterval(timerInterval);
+            
+            // Reset game history
+            gameHistory = [];
+            reviewTriggerBtn.style.display = 'none';
+
+            userLabelCard.innerText = timerModeSelect.value !== 'none' ? "Time" : "Player";
+            
+            score = 0;
+            isPlaying = true;
+            scoreDisplay.innerText = score;
+
+            if (gameModeSelect.value === 'attack') {
+                const sideText = playerSideSelect.value.toUpperCase();
+                feedbackDisplay.innerText = `Playing as ${sideText}! Detect opponent attacks on your pieces. (Q=90, R=50, B/N=30, P=10)`;
+            } else {
+                feedbackDisplay.innerText = proModeCheck.checked ? "Pro Mode Active! Trust your grid memory." : "Find them fast!";
+            }
+            
+            feedbackDisplay.style.color = '#fff';
+            
+            const timerSetting = timerModeSelect.value;
+            if (timerSetting !== 'none') {
+                timeLeft = parseInt(timerSetting, 10);
+                activeUserDisplay.innerText = timeLeft + 's';
+                activeUserDisplay.classList.remove('timer-panic');
+                timerInterval = setInterval(updateTimer, 1000);
+            } else {
+                activeUserDisplay.innerText = currentUser;
+                activeUserDisplay.classList.remove('timer-panic');
+            }
+
+            nextQuestion();
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            if (timeLeft <= 5) {
+                activeUserDisplay.classList.add('timer-panic');
+            }
+            if (timeLeft <= 0) {
+                activeUserDisplay.innerText = '0s';
+                endGame();
+            } else {
+                activeUserDisplay.innerText = timeLeft + 's';
+            }
+        }
+
+        function endGame() {
+            isPlaying = false;
+            clearInterval(timerInterval);
+            activeUserDisplay.classList.remove('timer-panic');
+            activeUserDisplay.innerText = currentUser;
+            userLabelCard.innerText = "Player";
+            promptDisplay.innerText = "Game Over!";
+            
+            document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
+            
+            const suffix = getScoreKeySuffix();
+            const personalRecordKey = `chess_user_score_${currentUser}${suffix}`;
+            const personalBest = parseInt(localStorage.getItem(personalRecordKey)) || 0;
+            
+            if (score > personalBest) {
+                localStorage.setItem(personalRecordKey, score);
+            }
+
+            const globalBest = getGlobalHighScoreDetails();
+            if (score >= globalBest.score && score > 0) {
+                feedbackDisplay.innerText = `👑 Match Complete! High Score: ${score}!`;
+                feedbackDisplay.style.color = '#ffeb3b';
+                triggerElementPop(highScoreDisplay);
+            } else {
+                const randomMotivation = motivationPhrases[Math.floor(Math.random() * motivationPhrases.length)];
+                feedbackDisplay.innerText = `Finished! Score: ${score}. ${randomMotivation}`;
+                feedbackDisplay.style.color = '#aaa';
+            }
+
+            // Enable review mode button if attack level was played in timed mode with recorded history
+            if (gameModeSelect.value === 'attack' && timerModeSelect.value !== 'none' && gameHistory.length > 0) {
+                reviewTriggerBtn.style.display = 'inline-block';
+            }
+            
+            updateHighScoreView();
+        }
+
+        function renderPiecesOnBoard(pieceMap) {
+            document.querySelectorAll('.square').forEach(sq => {
+                sq.innerHTML = '';
+                sq.className = sq.className.split(' ').filter(c => c === 'square' || c === 'light' || c === 'dark').join(' ');
+            });
+
+            for (const [coord, piece] of Object.entries(pieceMap)) {
+                const sqEl = document.querySelector(`[data-coord="${coord}"]`);
+                if (sqEl) {
+                    const colorClass = isWhite(piece) ? 'white-piece' : 'black-piece';
+                    sqEl.innerHTML = `<span class="piece ${colorClass}">${piece}</span>`;
+                }
+            }
+        }
+
+        function nextQuestion() {
+            if (!isPlaying) return;
+            const mode = gameModeSelect.value;
+            
+            document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
+
+            if (mode === 'attack') {
+                const playerSide = playerSideSelect.value;
+                const scenario = generateValidAttackScenario(playerSide);
+                currentBoardState = scenario.pieceMap;
+                activeAttacks = scenario.attacks;
+                
+                renderPiecesOnBoard(currentBoardState);
+                
+                let attackCount = activeAttacks.length;
+                const oppColor = playerSide === 'white' ? 'Black' : 'White';
+                promptDisplay.innerText = `${oppColor} Threat! (${attackCount} Target${attackCount > 1 ? 's' : ''})`;
+
+            } else if (mode === 'columns') {
+                const randomFile = files[Math.floor(Math.random() * files.length)];
+                currentPrompt = randomFile;
+                promptDisplay.innerText = `Column: ${randomFile.toUpperCase()}`;
+            } else {
+                const randomFile = files[Math.floor(Math.random() * files.length)];
+                const randomRank = ranks[Math.floor(Math.random() * ranks.length)];
+                currentPrompt = randomFile + randomRank;
+                promptDisplay.innerText = `Square: ${currentPrompt.toUpperCase()}`;
+            }
+        }
+
+        function handleSquareClick(e) {
+            if (!isPlaying || isReviewMode) return;
+
+            const clickedSquare = e.target.closest('.square') || e.target;
+            const clickedFile = clickedSquare.dataset.file;
+            const clickedCoord = clickedSquare.dataset.coord;
+            const mode = gameModeSelect.value;
+            
+            let isCorrect = false;
+            let pointsEarned = 10;
+            let pointsLost = 5;
+
+            if (mode === 'columns') {
+                isCorrect = (clickedFile === currentPrompt);
+            } else if (mode === 'full') {
+                isCorrect = (clickedCoord === currentPrompt);
+            } else if (mode === 'attack') {
+                let matchedAttacks = activeAttacks.filter(a => a.targetSq === clickedCoord || a.attackerSq === clickedCoord);
+                
+                if (matchedAttacks.length > 0) {
+                    isCorrect = true;
+                    matchedAttacks.sort((a, b) => b.value - a.value);
+                    let bestMatch = matchedAttacks[0];
+                    pointsEarned = bestMatch.value;
+                    feedbackDisplay.innerText = `🎯 Threat Detected! Identified ${bestMatch.targetName} target (+${pointsEarned} pts)!`;
+                }
+
+                // Record history turn for timed attack review
+                if (timerModeSelect.value !== 'none') {
+                    gameHistory.push({
+                        boardState: JSON.parse(JSON.stringify(currentBoardState)),
+                        attacks: JSON.parse(JSON.stringify(activeAttacks)),
+                        clickedCoord: clickedCoord,
+                        isCorrect: isCorrect,
+                        pointsGained: isCorrect ? pointsEarned : -pointsLost
+                    });
+                }
+            }
+
+            if (isCorrect) {
+                score += pointsEarned;
+                if (mode !== 'attack') {
+                    feedbackDisplay.innerText = evaluateLiveProgress(score);
+                }
+                feedbackDisplay.style.color = 'var(--accent-color)';
+                triggerElementPop(scoreDisplay);
+                
+                if (mode === 'columns') {
+                    flashTargetGroup(`[data-file="${clickedFile}"]`, 'correct-flash');
+                } else {
+                    flashTargetGroup(`[data-coord="${clickedCoord}"]`, 'correct-flash');
+                }
+                nextQuestion();
+            } else {
+                score = Math.max(0, score - pointsLost);
+                feedbackDisplay.innerText = mode === 'attack' 
+                    ? `No active opponent attack at ${clickedCoord.toUpperCase()} (-5)` 
+                    : `Oops, that was ${clickedCoord.toUpperCase()} (-5)`;
+                feedbackDisplay.style.color = 'var(--penalty-color)';
+                triggerElementPop(scoreDisplay);
+                
+                if (mode === 'columns') {
+                    flashTargetGroup(`[data-file="${clickedFile}"]`, 'wrong-flash');
+                } else {
+                    flashTargetGroup(`[data-coord="${clickedCoord}"]`, 'wrong-flash');
+                }
+            }
+
+            scoreDisplay.innerText = score;
+        }
+
+        /* Review Mode Functions */
+        function startReview() {
+            if (gameHistory.length === 0) return;
+            isReviewMode = true;
+            currentReviewIndex = 0;
+            
+            reviewTriggerBtn.style.display = 'none';
+            reviewNavBar.classList.add('active');
+            
+            renderReviewTurn(currentReviewIndex);
+        }
+
+        function renderReviewTurn(index) {
+            const turnData = gameHistory[index];
+            if (!turnData) return;
+
+            renderPiecesOnBoard(turnData.boardState);
+
+            // Highlight user selection
+            const clickedSq = document.querySelector(`[data-coord="${turnData.clickedCoord}"]`);
+            if (clickedSq) {
+                clickedSq.classList.add(turnData.isCorrect ? 'review-user-choice-correct' : 'review-user-choice-wrong');
+            }
+
+            // Highlight attackers and place score overlays on attack targets
+            turnData.attacks.forEach(att => {
+                const attackerSq = document.querySelector(`[data-coord="${att.attackerSq}"]`);
+                if (attackerSq) {
+                    attackerSq.classList.add('review-attacker-sq');
+                }
+
+                const targetSq = document.querySelector(`[data-coord="${att.targetSq}"]`);
+                if (targetSq) {
+                    const badge = document.createElement('div');
+                    badge.className = 'attack-badge';
+                    badge.innerText = `+${att.value}`;
+                    targetSq.appendChild(badge);
+                }
+            });
+
+            // Update Review Bar UI
+            promptDisplay.innerText = `Board Review (${index + 1}/${gameHistory.length})`;
+            const scoreFormatted = turnData.pointsGained >= 0 ? `+${turnData.pointsGained}` : `${turnData.pointsGained}`;
+            feedbackDisplay.innerText = `Clicked ${turnData.clickedCoord.toUpperCase()} (${scoreFormatted} pts) | Targets: ${turnData.attacks.map(a => a.targetSq.toUpperCase()).join(', ')}`;
+            feedbackDisplay.style.color = turnData.isCorrect ? 'var(--accent-color)' : 'var(--penalty-color)';
+
+            reviewTurnIndicator.innerText = `Turn ${index + 1}/${gameHistory.length}`;
+            prevReviewBtn.disabled = (index === 0);
+            nextReviewBtn.disabled = (index === gameHistory.length - 1);
+        }
+
+        function exitReview() {
+            isReviewMode = false;
+            reviewNavBar.classList.remove('active');
+            reviewTriggerBtn.style.display = gameHistory.length > 0 ? 'inline-block' : 'none';
+            
+            promptDisplay.innerText = "Game Over!";
+            feedbackDisplay.innerText = "Ready to practice again?";
+            feedbackDisplay.style.color = "#fff";
+            document.querySelectorAll('.square').forEach(sq => {
+                sq.innerHTML = '';
+                sq.className = sq.className.split(' ').filter(c => c === 'square' || c === 'light' || c === 'dark').join(' ');
+            });
+        }
+
+        function flashTargetGroup(selector, className) {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                el.classList.add(className);
+                setTimeout(() => el.classList.remove(className), 250);
+            });
+        }
+
+        function triggerElementPop(element) {
+            element.classList.remove('animate-pop');
+            void element.offsetWidth; 
+            element.classList.add('animate-pop');
+        }
+
+        (function injectSecureFooter() {
+            const bytecode = [99,114,101,97,116,101,100,32,98,121,32,78,111,122,101,108,32,82,111,122,97,114,105,111];
+            const footerEl = document.createElement('footer');
+            footerEl.innerText = String.fromCharCode(...bytecode);
+            footerEl.style.cssText = 'font-size: 9px; color: #555; margin-top: 25px; text-align: center; letter-spacing: 0.5px; user-select: none; opacity: 0.6; padding-bottom: 10px;';
+            document.body.appendChild(footerEl);
+        })();
+
+        startBtn.addEventListener('click', startGame);
+        switchUserBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showUserModal();
+        });
+        modalConfirmBtn.addEventListener('click', handleModalConfirm);
+        pieceStyleSelect.addEventListener('change', applyPieceStyleTheme);
+
+        reviewTriggerBtn.addEventListener('click', startReview);
+        prevReviewBtn.addEventListener('click', () => {
+            if (currentReviewIndex > 0) {
+                currentReviewIndex--;
+                renderReviewTurn(currentReviewIndex);
+            }
+        });
+        nextReviewBtn.addEventListener('click', () => {
+            if (currentReviewIndex < gameHistory.length - 1) {
+                currentReviewIndex++;
+                renderReviewTurn(currentReviewIndex);
+            }
+        });
+        exitReviewBtn.addEventListener('click', exitReview);
+
+        gameModeSelect.addEventListener('change', () => {
+            if (isReviewMode) exitReview();
+            updateHighScoreView();
+            if(isPlaying) endGame();
+        });
+
+        playerSideSelect.addEventListener('change', () => {
+            if (isReviewMode) exitReview();
+            updateHighScoreView();
+            if(isPlaying) endGame();
+        });
+        
+        timerModeSelect.addEventListener('change', () => {
+            if (isReviewMode) exitReview();
+            updateHighScoreView();
+            if(isPlaying) endGame();
+        });
+
+        proModeCheck.addEventListener('change', () => {
+            if (proModeCheck.checked) {
+                board.classList.add('pro-mode-active');
+            } else {
+                board.classList.remove('pro-mode-active');
+            }
+            if (isReviewMode) exitReview();
+            updateHighScoreView();
+            if(isPlaying) endGame(); 
+        });
+
+        generateBoard();
+        initializeProfiles();
+        updateHighScoreView();
+    </script>
+</body>
+</html>
