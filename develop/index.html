@@ -212,7 +212,6 @@
             transition: all 0.2s;
         }
 
-        /* Review Mode UI Styles */
         .review-nav-bar {
             display: none;
             align-items: center;
@@ -294,7 +293,7 @@
             justify-content: center;
             cursor: pointer;
             transition: background-color 0.15s ease;
-            position: relative; /* Allows overlay positioning */
+            position: relative;
         }
 
         .piece {
@@ -310,7 +309,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Review Mode Board Highlights */
         .square.review-user-choice-correct {
             box-shadow: inset 0 0 0 4px #4caf50 !important;
             background-color: rgba(76, 175, 80, 0.25) !important;
@@ -570,7 +568,6 @@
         let currentUser = 'Guest';
         let allUsers = ['Guest'];
 
-        // Review state memory
         let gameHistory = [];
         let isReviewMode = false;
         let currentReviewIndex = 0;
@@ -638,161 +635,339 @@
             }
         }
 
-        /* Scan board for valid attacks launched by opponent against player */
-        function analyzeAttacks(pieceMap, playerSide = 'white') {
-            let attacks = [];
+        /* --- FIDE CHESS RULE VALIDATION UTILITIES --- */
 
-            for (let targetSq in pieceMap) {
-                let targetPiece = pieceMap[targetSq];
-                let targetIsWhite = isWhite(targetPiece);
-                
-                let targetIsPlayer = (playerSide === 'white' && targetIsWhite) || (playerSide === 'black' && !targetIsWhite);
-                if (!targetIsPlayer) continue;
+        function pieceMapToGrid(pieceMap) {
+            const grid = Array(8).fill(null).map(() => Array(8).fill(null));
+            for (const [coord, piece] of Object.entries(pieceMap)) {
+                const c = files.indexOf(coord[0]);
+                const r = ranks.indexOf(coord[1]);
+                if (r !== -1 && c !== -1) {
+                    grid[r][c] = piece;
+                }
+            }
+            return grid;
+        }
 
-                let tx = files.indexOf(targetSq[0]);
-                let ty = ranks.indexOf(targetSq[1]);
+        function isSquareAttackedBy(grid, tr, tc, attackerColor) {
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = grid[r][c];
+                    if (!piece) continue;
+                    const pColor = isWhite(piece) ? 'white' : 'black';
+                    if (pColor !== attackerColor) continue;
 
-                for (let attackerSq in pieceMap) {
-                    if (attackerSq === targetSq) continue;
-                    let attackerPiece = pieceMap[attackerSq];
-                    let attackerIsWhite = isWhite(attackerPiece);
+                    const meta = getPieceMeta(piece);
 
-                    let attackerIsOpponent = (playerSide === 'white' && !attackerIsWhite) || (playerSide === 'black' && attackerIsWhite);
-                    if (!attackerIsOpponent) continue;
-
-                    let ax = files.indexOf(attackerSq[0]);
-                    let ay = ranks.indexOf(attackerSq[1]);
-                    let attMeta = getPieceMeta(attackerPiece);
-                    let isAttacking = false;
-
-                    if (attMeta.type === 'knight') {
-                        let dx = Math.abs(ax - tx);
-                        let dy = Math.abs(ay - ty);
-                        if ((dx === 1 && dy === 2) || (dx === 2 && dy === 1)) isAttacking = true;
-                    } 
-                    else if (attMeta.type === 'pawn') {
-                        let dx = Math.abs(ax - tx);
-                        if (attackerIsWhite) {
-                            if (dx === 1 && (ay - ty === 1)) isAttacking = true;
-                        } else {
-                            if (dx === 1 && (ty - ay === 1)) isAttacking = true;
-                        }
-                    } 
-                    else if (attMeta.type === 'king') {
-                        let dx = Math.abs(ax - tx);
-                        let dy = Math.abs(ay - ty);
-                        if (dx <= 1 && dy <= 1) isAttacking = true;
-                    } 
+                    if (meta.type === 'pawn') {
+                        const dir = (attackerColor === 'white') ? -1 : 1;
+                        if (r + dir === tr && (c - 1 === tc || c + 1 === tc)) return true;
+                    }
+                    else if (meta.type === 'knight') {
+                        const dr = Math.abs(r - tr);
+                        const dc = Math.abs(c - tc);
+                        if ((dr === 1 && dc === 2) || (dr === 2 && dc === 1)) return true;
+                    }
+                    else if (meta.type === 'king') {
+                        const dr = Math.abs(r - tr);
+                        const dc = Math.abs(c - tc);
+                        if (dr <= 1 && dc <= 1) return true;
+                    }
                     else {
-                        let dx = Math.sign(tx - ax);
-                        let dy = Math.sign(ty - ay);
-                        let absDx = Math.abs(tx - ax);
-                        let absDy = Math.abs(ty - ay);
+                        const dr = Math.sign(tr - r);
+                        const dc = Math.sign(tc - c);
+                        const absDr = Math.abs(tr - r);
+                        const absDc = Math.abs(tc - c);
 
-                        let validDir = false;
-                        if (attMeta.type === 'rook' && (absDx === 0 || absDy === 0)) validDir = true;
-                        if (attMeta.type === 'bishop' && (absDx === absDy)) validDir = true;
-                        if (attMeta.type === 'queen' && (absDx === 0 || absDy === 0 || absDx === absDy)) validDir = true;
+                        let validLine = false;
+                        if (meta.type === 'rook' && (absDr === 0 || absDc === 0)) validLine = true;
+                        if (meta.type === 'bishop' && (absDr === absDc)) validLine = true;
+                        if (meta.type === 'queen' && (absDr === 0 || absDc === 0 || absDr === absDc)) validLine = true;
 
-                        if (validDir) {
-                            let cx = ax + dx;
-                            let cy = ay + dy;
+                        if (validLine) {
+                            let cr = r + dr;
+                            let cc = c + dc;
                             let blocked = false;
-                            while (cx !== tx || cy !== ty) {
-                                let pathSq = files[cx] + ranks[cy];
-                                if (pieceMap[pathSq]) {
+                            while (cr !== tr || cc !== tc) {
+                                if (grid[cr][cc] !== null) {
                                     blocked = true;
                                     break;
                                 }
-                                cx += dx;
-                                cy += dy;
+                                cr += dr;
+                                cc += dc;
                             }
-                            if (!blocked) isAttacking = true;
+                            if (!blocked) return true;
                         }
                     }
+                }
+            }
+            return false;
+        }
 
-                    if (isAttacking) {
-                        let targetMeta = getPieceMeta(targetPiece);
-                        attacks.push({
-                            attackerSq,
-                            targetSq,
-                            attackerPiece,
-                            targetPiece,
-                            value: targetMeta.val,
-                            targetName: targetMeta.name
-                        });
+        function isPieceDefended(grid, r, c) {
+            const piece = grid[r][c];
+            if (!piece) return false;
+            const color = isWhite(piece) ? 'white' : 'black';
+            return isSquareAttackedBy(grid, r, c, color);
+        }
+
+        function canPieceAttackSquare(grid, ar, ac, tr, tc) {
+            const p = grid[ar][ac];
+            if (!p) return false;
+            const color = isWhite(p) ? 'white' : 'black';
+            const meta = getPieceMeta(p);
+
+            if (meta.type === 'knight') {
+                const dr = Math.abs(ar - tr);
+                const dc = Math.abs(ac - tc);
+                return (dr === 1 && dc === 2) || (dr === 2 && dc === 1);
+            }
+            if (meta.type === 'pawn') {
+                const dir = (color === 'white') ? -1 : 1;
+                return ar + dir === tr && (ac - 1 === tc || ac + 1 === tc);
+            }
+            if (meta.type === 'king') {
+                const dr = Math.abs(ar - tr);
+                const dc = Math.abs(ac - tc);
+                return dr <= 1 && dc <= 1;
+            }
+            
+            const dr = Math.sign(tr - ar);
+            const dc = Math.sign(tc - ac);
+            const absDr = Math.abs(tr - ar);
+            const absDc = Math.abs(tc - ac);
+
+            let validLine = false;
+            if (meta.type === 'rook' && (absDr === 0 || absDc === 0)) validLine = true;
+            if (meta.type === 'bishop' && (absDr === absDc)) validLine = true;
+            if (meta.type === 'queen' && (absDr === 0 || absDc === 0 || absDr === absDc)) validLine = true;
+
+            if (!validLine) return false;
+
+            let cr = ar + dr;
+            let cc = ac + dc;
+            while (cr !== tr || cc !== tc) {
+                if (grid[cr][cc] !== null) return false;
+                cr += dr;
+                cc += dc;
+            }
+            return true;
+        }
+
+        /* Enforce FIDE Position Legality Rules */
+        function isBoardPositionLegal(pieceMap, playerSide = 'white') {
+            const grid = pieceMapToGrid(pieceMap);
+            const oppColor = playerSide === 'white' ? 'black' : 'white';
+            const playerColor = playerSide;
+
+            let wKing = null, bKing = null;
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const p = grid[r][c];
+                    if (!p) continue;
+                    if (p === '♔') wKing = { r, c };
+                    if (p === '♚') bKing = { r, c };
+
+                    if ((p === '♙' || p === '♟') && (r === 0 || r === 7)) {
+                        return false;
+                    }
+                }
+            }
+
+            if (!wKing || !bKing) return false;
+
+            const playerKingPos = playerColor === 'white' ? wKing : bKing;
+            const oppKingPos = oppColor === 'white' ? wKing : bKing;
+
+            // 1. Kings distance rule
+            const kDist = Math.max(Math.abs(wKing.r - bKing.r), Math.abs(wKing.c - bKing.c));
+            if (kDist <= 1) return false;
+
+            // 2. Opponent King cannot be in check
+            if (isSquareAttackedBy(grid, oppKingPos.r, oppKingPos.c, playerColor)) {
+                return false;
+            }
+
+            // 3. Prevent arbitrary double check on player King
+            let playerKingCheckers = 0;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const p = grid[r][c];
+                    if (!p) continue;
+                    const color = isWhite(p) ? 'white' : 'black';
+                    if (color !== oppColor) continue;
+
+                    if (canPieceAttackSquare(grid, r, c, playerKingPos.r, playerKingPos.c)) {
+                        playerKingCheckers++;
+                    }
+                }
+            }
+
+            if (playerKingCheckers > 1) {
+                return false;
+            }
+
+            return true;
+        }
+
+        /* Scan board for valid legal attacks launched by opponent against player */
+        function analyzeAttacks(pieceMap, playerSide = 'white') {
+            const grid = pieceMapToGrid(pieceMap);
+            const oppColor = playerSide === 'white' ? 'black' : 'white';
+            const playerColor = playerSide;
+            let attacks = [];
+
+            for (let ar = 0; ar < 8; ar++) {
+                for (let ac = 0; ac < 8; ac++) {
+                    const attPiece = grid[ar][ac];
+                    if (!attPiece) continue;
+                    const attColor = isWhite(attPiece) ? 'white' : 'black';
+                    if (attColor !== oppColor) continue;
+
+                    const attMeta = getPieceMeta(attPiece);
+                    const attackerSq = files[ac] + ranks[ar];
+
+                    for (let tr = 0; tr < 8; tr++) {
+                        for (let tc = 0; tc < 8; tc++) {
+                            if (ar === tr && ac === tc) continue;
+                            const tgtPiece = grid[tr][tc];
+                            if (!tgtPiece) continue;
+                            const tgtColor = isWhite(tgtPiece) ? 'white' : 'black';
+                            if (tgtColor !== playerColor) continue;
+
+                            const targetSq = files[tc] + ranks[tr];
+                            const tgtMeta = getPieceMeta(tgtPiece);
+
+                            let isAttacking = false;
+
+                            if (attMeta.type === 'knight') {
+                                const dr = Math.abs(ar - tr);
+                                const dc = Math.abs(ac - tc);
+                                if ((dr === 1 && dc === 2) || (dr === 2 && dc === 1)) isAttacking = true;
+                            } 
+                            else if (attMeta.type === 'pawn') {
+                                const dir = (oppColor === 'white') ? -1 : 1;
+                                if (ar + dir === tr && (ac - 1 === tc || ac + 1 === tc)) isAttacking = true;
+                            } 
+                            else if (attMeta.type === 'king') {
+                                const dr = Math.abs(ar - tr);
+                                const dc = Math.abs(ac - tc);
+                                if (dr <= 1 && dc <= 1) {
+                                    // King CANNOT attack/threaten a piece if that piece is DEFENDED by an ally
+                                    if (!isPieceDefended(grid, tr, tc)) {
+                                        isAttacking = true;
+                                    }
+                                }
+                            } 
+                            else {
+                                const dr = Math.sign(tr - ar);
+                                const dc = Math.sign(tc - ac);
+                                const absDr = Math.abs(tr - ar);
+                                const absDc = Math.abs(tc - ac);
+
+                                let validLine = false;
+                                if (attMeta.type === 'rook' && (absDr === 0 || absDc === 0)) validLine = true;
+                                if (attMeta.type === 'bishop' && (absDr === absDc)) validLine = true;
+                                if (attMeta.type === 'queen' && (absDr === 0 || absDc === 0 || absDr === absDc)) validLine = true;
+
+                                if (validLine) {
+                                    let cr = ar + dr;
+                                    let cc = ac + dc;
+                                    let blocked = false;
+                                    while (cr !== tr || cc !== tc) {
+                                        if (grid[cr][cc] !== null) {
+                                            blocked = true;
+                                            break;
+                                        }
+                                        cr += dr;
+                                        cc += dc;
+                                    }
+                                    if (!blocked) isAttacking = true;
+                                }
+                            }
+
+                            if (isAttacking) {
+                                attacks.push({
+                                    attackerSq,
+                                    targetSq,
+                                    attackerPiece: attPiece,
+                                    targetPiece: tgtPiece,
+                                    value: tgtMeta.val,
+                                    targetName: tgtMeta.name
+                                });
+                            }
+                        }
                     }
                 }
             }
             return attacks;
         }
 
-        /* Board generator respecting piece counts, color complexes, and player side */
+        /* Board generator with legal position re-roll loop */
         function generateValidAttackScenario(playerSide = 'white') {
-            let pieceMap = {};
-            let wCounts = { Q: 1, R: 2, B_L: 1, B_D: 1, N: 2, P: 4 };
-            let bCounts = { Q: 1, R: 2, B_L: 1, B_D: 1, N: 2, P: 4 };
+            let maxAttempts = 500;
 
-            function isLightSquare(x, y) { return (x + y) % 2 === 0; }
+            while (maxAttempts-- > 0) {
+                let pieceMap = {};
 
-            pieceMap['e1'] = '♔';
-            pieceMap['e8'] = '♚';
+                let wr = Math.floor(Math.random() * 8);
+                let wc = Math.floor(Math.random() * 8);
+                let br = Math.floor(Math.random() * 8);
+                let bc = Math.floor(Math.random() * 8);
 
-            let piecePool = [];
-            if (wCounts.Q--) piecePool.push('♕');
-            if (wCounts.R--) piecePool.push('♖');
-            if (wCounts.B_L--) piecePool.push('♗_L');
-            if (wCounts.B_D--) piecePool.push('♗_D');
-            if (wCounts.N--) piecePool.push('♘');
-            for(let i=0; i<3; i++) piecePool.push('♙');
+                if (Math.max(Math.abs(wr - br), Math.abs(wc - bc)) <= 1) continue;
 
-            if (bCounts.Q--) piecePool.push('♛');
-            if (bCounts.R--) piecePool.push('♜');
-            if (bCounts.B_L--) piecePool.push('♝_L');
-            if (bCounts.B_D--) piecePool.push('♝_D');
-            if (bCounts.N--) piecePool.push('♞');
-            for(let i=0; i<3; i++) piecePool.push('♟');
+                pieceMap[files[wc] + ranks[wr]] = '♔';
+                pieceMap[files[bc] + ranks[br]] = '♚';
 
-            piecePool.sort(() => Math.random() - 0.5);
+                let piecePool = [
+                    '♕', '♖', '♖', '♗_L', '♗_D', '♘', '♘', '♙', '♙', '♙',
+                    '♛', '♜', '♜', '♝_L', '♝_D', '♞', '♞', '♟', '♟', '♟'
+                ];
+                piecePool.sort(() => Math.random() - 0.5);
 
-            let placed = 0;
-            let targetCount = Math.floor(Math.random() * 5) + 6;
+                let placed = 0;
+                let targetCount = Math.floor(Math.random() * 5) + 6;
 
-            for (let item of piecePool) {
-                if (placed >= targetCount) break;
+                for (let item of piecePool) {
+                    if (placed >= targetCount) break;
 
-                let attempts = 0;
-                while (attempts < 30) {
-                    attempts++;
-                    let rx = Math.floor(Math.random() * 8);
-                    let ry = Math.floor(Math.random() * 8);
-                    let sq = files[rx] + ranks[ry];
+                    let attempts = 0;
+                    while (attempts < 20) {
+                        attempts++;
+                        let rx = Math.floor(Math.random() * 8);
+                        let ry = Math.floor(Math.random() * 8);
+                        let sq = files[rx] + ranks[ry];
 
-                    if (pieceMap[sq]) continue;
+                        if (pieceMap[sq]) continue;
 
-                    let isLight = isLightSquare(rx, ry);
+                        let isLight = (rx + ry) % 2 === 0;
 
-                    if (item === '♗_L' && !isLight) continue;
-                    if (item === '♗_D' && isLight) continue;
-                    if (item === '♝_L' && !isLight) continue;
-                    if (item === '♝_D' && isLight) continue;
-                    
-                    if ((item === '♙' || item === '♟') && (ry === 0 || ry === 7)) continue;
+                        if (item === '♗_L' && !isLight) continue;
+                        if (item === '♗_D' && isLight) continue;
+                        if (item === '♝_L' && !isLight) continue;
+                        if (item === '♝_D' && isLight) continue;
+                        
+                        if ((item === '♙' || item === '♟') && (ry === 0 || ry === 7)) continue;
 
-                    let actualSymbol = item.replace('_L', '').replace('_D', '');
-                    pieceMap[sq] = actualSymbol;
-                    placed++;
-                    break;
+                        let actualSymbol = item.replace('_L', '').replace('_D', '');
+                        pieceMap[sq] = actualSymbol;
+                        placed++;
+                        break;
+                    }
+                }
+
+                if (!isBoardPositionLegal(pieceMap, playerSide)) continue;
+
+                let attacks = analyzeAttacks(pieceMap, playerSide);
+
+                if (attacks.length >= 1 && attacks.length <= 4) {
+                    return { pieceMap, attacks };
                 }
             }
 
-            let attacks = analyzeAttacks(pieceMap, playerSide);
-
-            if (attacks.length >= 1 && attacks.length <= 4) {
-                return { pieceMap, attacks };
-            } else {
-                return generateValidAttackScenario(playerSide); 
-            }
+            return generateValidAttackScenario(playerSide); 
         }
 
         function getScoreKeySuffix() {
@@ -910,7 +1085,6 @@
             if (isReviewMode) exitReview();
             clearInterval(timerInterval);
             
-            // Reset game history
             gameHistory = [];
             reviewTriggerBtn.style.display = 'none';
 
@@ -985,7 +1159,6 @@
                 feedbackDisplay.style.color = '#aaa';
             }
 
-            // Enable review mode button if attack level was played in timed mode with recorded history
             if (gameModeSelect.value === 'attack' && timerModeSelect.value !== 'none' && gameHistory.length > 0) {
                 reviewTriggerBtn.style.display = 'inline-block';
             }
@@ -1065,7 +1238,6 @@
                     feedbackDisplay.innerText = `🎯 Threat Detected! Identified ${bestMatch.targetName} target (+${pointsEarned} pts)!`;
                 }
 
-                // Record history turn for timed attack review
                 if (timerModeSelect.value !== 'none') {
                     gameHistory.push({
                         boardState: JSON.parse(JSON.stringify(currentBoardState)),
@@ -1127,13 +1299,11 @@
 
             renderPiecesOnBoard(turnData.boardState);
 
-            // Highlight user selection
             const clickedSq = document.querySelector(`[data-coord="${turnData.clickedCoord}"]`);
             if (clickedSq) {
                 clickedSq.classList.add(turnData.isCorrect ? 'review-user-choice-correct' : 'review-user-choice-wrong');
             }
 
-            // Highlight attackers and place score overlays on attack targets
             turnData.attacks.forEach(att => {
                 const attackerSq = document.querySelector(`[data-coord="${att.attackerSq}"]`);
                 if (attackerSq) {
@@ -1149,7 +1319,6 @@
                 }
             });
 
-            // Update Review Bar UI
             promptDisplay.innerText = `Board Review (${index + 1}/${gameHistory.length})`;
             const scoreFormatted = turnData.pointsGained >= 0 ? `+${turnData.pointsGained}` : `${turnData.pointsGained}`;
             feedbackDisplay.innerText = `Clicked ${turnData.clickedCoord.toUpperCase()} (${scoreFormatted} pts) | Targets: ${turnData.attacks.map(a => a.targetSq.toUpperCase()).join(', ')}`;
