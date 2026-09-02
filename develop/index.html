@@ -396,6 +396,66 @@
             pointer-events: none;
         }
 
+        button.level-picker-btn {
+            background: linear-gradient(135deg, #383842, #2a2a30);
+            border: 1px solid #555;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            height: 35px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+
+        button.level-picker-btn:hover {
+            border-color: #ffeb3b;
+            background: linear-gradient(135deg, #444450, #32323c);
+            box-shadow: 0 0 10px rgba(255, 235, 59, 0.25);
+            transform: translateY(-1px);
+        }
+
+        button.level-picker-btn:active {
+            transform: scale(0.97);
+        }
+
+        .level-btn-icon {
+            font-size: 15px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .level-btn-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+
+        .level-btn-caret {
+            font-size: 10px;
+            color: #ffeb3b;
+            margin-left: 2px;
+            opacity: 0.85;
+            transition: transform 0.2s ease;
+        }
+
+        button.level-picker-btn:hover .level-btn-caret {
+            transform: translateY(1px);
+            opacity: 1;
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -412,6 +472,250 @@
             background: var(--card-bg); padding: 25px; border-radius: 16px;
             width: 90%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             border: 1px solid #444;
+        }
+
+        .level-modal-card {
+            background: linear-gradient(180deg, #2b2c34 0%, #1c1d23 100%);
+            padding: 24px 20px 20px 20px;
+            border-radius: 18px;
+            width: 92%;
+            max-width: 480px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.75), 0 0 25px rgba(255, 235, 59, 0.08);
+            border: 1px solid rgba(255, 235, 59, 0.25);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .level-modal-header {
+            text-align: center;
+            margin-bottom: 18px;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        .header-crown {
+            font-size: 26px;
+            margin-bottom: 3px;
+            filter: drop-shadow(0 2px 8px rgba(255, 235, 59, 0.4));
+        }
+
+        .level-modal-header h2 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ffeb3b, #4caf50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-subtitle {
+            font-size: 12px;
+            color: #aaa;
+            margin: 4px 0 0 0;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid #555;
+            color: #ccc;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: all 0.15s ease;
+            z-index: 10;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(244, 67, 54, 0.8);
+            border-color: #f44336;
+            color: #fff;
+            transform: scale(1.08);
+        }
+
+        .level-cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .level-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid #3e3f49;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+            text-align: left;
+        }
+
+        .level-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #ffeb3b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .level-card:active {
+            transform: scale(0.98);
+        }
+
+        .level-card.active {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.14);
+            box-shadow: 0 0 16px rgba(76, 175, 80, 0.35);
+        }
+
+        .level-card-icon-wrap {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .level-card:hover .level-card-icon-wrap {
+            transform: scale(1.08);
+        }
+
+        .level-icon-green {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(46, 125, 50, 0.6));
+            border: 1.5px solid #4caf50;
+            color: #c8e6c9;
+        }
+
+        .level-icon-blue {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.3), rgba(21, 101, 192, 0.6));
+            border: 1.5px solid #2196f3;
+            color: #bbdefb;
+        }
+
+        .level-icon-gold {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 111, 0, 0.6));
+            border: 1.5px solid #ffb300;
+            color: #fff9c4;
+        }
+
+        .level-card-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .level-card-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .level-number {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #ffeb3b;
+            text-transform: uppercase;
+        }
+
+        .level-badge {
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1px 7px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-green {
+            background: rgba(76, 175, 80, 0.25);
+            color: #81c784;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+        }
+
+        .badge-blue {
+            background: rgba(33, 150, 243, 0.25);
+            color: #64b5f6;
+            border: 1px solid rgba(33, 150, 243, 0.4);
+        }
+
+        .badge-gold {
+            background: rgba(255, 193, 7, 0.25);
+            color: #ffd54f;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+        }
+
+        .level-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin: 2px 0 3px 0;
+        }
+
+        .level-card-desc {
+            font-size: 12px;
+            line-height: 1.35;
+            color: #bbb;
+            margin-bottom: 6px;
+        }
+
+        .level-card-footer {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .meta-pill {
+            font-size: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        .level-selected-check {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            border-radius: 50%;
+            border: 2px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 900;
+            color: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .level-card.active .level-selected-check {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: #fff;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
         }
 
         .modal-card h2 { margin-top: 0; font-size: 20px; color: #ffeb3b; text-align: center; margin-bottom: 20px; }
@@ -433,12 +737,12 @@
     
     <div class="controls">
         <div class="control-group">
-            <label for="gameMode">Level</label>
-            <select id="gameMode">
-                <option value="columns">1: Columns (a-h)</option>
-                <option value="full">2: Full Grid</option>
-                <option value="attack">3: Attack Detection</option>
-            </select>
+            <label>Level</label>
+            <button id="levelSelectBtn" type="button" class="level-picker-btn" title="Choose training level">
+                <span id="levelBtnIcon" class="level-btn-icon">♖</span>
+                <span id="levelBtnText" class="level-btn-text">1: Columns</span>
+                <span class="level-btn-caret">▾</span>
+            </button>
         </div>
 
         <div class="control-group">
@@ -511,6 +815,79 @@
 
     <div class="board-container style-vector" id="board"></div>
 
+    <div id="levelModal" class="modal-overlay">
+        <div class="modal-card level-modal-card">
+            <button class="modal-close-btn" id="closeLevelModalBtn" title="Close" aria-label="Close Level Selection">&times;</button>
+            <div class="level-modal-header">
+                <div class="header-crown">👑</div>
+                <h2>Choose Game Level</h2>
+                <p class="modal-subtitle">Select your challenge to sharpen coordinates & tactics</p>
+            </div>
+
+            <div class="level-cards-list">
+                <!-- Level 1 Card -->
+                <div class="level-card" data-level="columns" tabindex="0" role="button" aria-label="Select Level 1 Columns">
+                    <div class="level-card-icon-wrap level-icon-green">
+                        <span class="level-card-icon">♖</span>
+                    </div>
+                    <div class="level-card-content">
+                        <div class="level-card-top">
+                            <span class="level-number">LEVEL 1</span>
+                            <span class="level-badge badge-green">Beginner</span>
+                        </div>
+                        <div class="level-card-title">Columns (Files a–h)</div>
+                        <div class="level-card-desc">Master vertical file recognition. Click any square along the called column (a to h).</div>
+                        <div class="level-card-footer">
+                            <span class="meta-pill">⚡ Fast Files</span>
+                            <span class="meta-pill">🌱 +10 pts</span>
+                        </div>
+                    </div>
+                    <div class="level-selected-check">✓</div>
+                </div>
+
+                <!-- Level 2 Card -->
+                <div class="level-card" data-level="full" tabindex="0" role="button" aria-label="Select Level 2 Full Grid">
+                    <div class="level-card-icon-wrap level-icon-blue">
+                        <span class="level-card-icon">♘</span>
+                    </div>
+                    <div class="level-card-content">
+                        <div class="level-card-top">
+                            <span class="level-number">LEVEL 2</span>
+                            <span class="level-badge badge-blue">Standard</span>
+                        </div>
+                        <div class="level-card-title">Full Grid (a1–h8)</div>
+                        <div class="level-card-desc">Identify exact coordinates across all 64 squares with pinpoint precision.</div>
+                        <div class="level-card-footer">
+                            <span class="meta-pill">🎯 64 Squares</span>
+                            <span class="meta-pill">🔥 +10 pts</span>
+                        </div>
+                    </div>
+                    <div class="level-selected-check">✓</div>
+                </div>
+
+                <!-- Level 3 Card -->
+                <div class="level-card" data-level="attack" tabindex="0" role="button" aria-label="Select Level 3 Attack Detection">
+                    <div class="level-card-icon-wrap level-icon-gold">
+                        <span class="level-card-icon">⚔️</span>
+                    </div>
+                    <div class="level-card-content">
+                        <div class="level-card-top">
+                            <span class="level-number">LEVEL 3</span>
+                            <span class="level-badge badge-gold">Tactical</span>
+                        </div>
+                        <div class="level-card-title">Attack Detection</div>
+                        <div class="level-card-desc">Scan dynamic boards to detect attacked pieces. Target high-value threats fast!</div>
+                        <div class="level-card-footer">
+                            <span class="meta-pill">⚔️ Threat Spotter</span>
+                            <span class="meta-pill">👑 Up to +90 pts</span>
+                        </div>
+                    </div>
+                    <div class="level-selected-check">✓</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="userModal" class="modal-overlay">
         <div class="modal-card">
             <h2>Select Profile</h2>
@@ -530,7 +907,11 @@
     <script>
         const board = document.getElementById('board');
         const startBtn = document.getElementById('startBtn');
-        const gameModeSelect = document.getElementById('gameMode');
+        const levelSelectBtn = document.getElementById('levelSelectBtn');
+        const levelBtnIcon = document.getElementById('levelBtnIcon');
+        const levelBtnText = document.getElementById('levelBtnText');
+        const levelModal = document.getElementById('levelModal');
+        const closeLevelModalBtn = document.getElementById('closeLevelModalBtn');
         const playerSideSelect = document.getElementById('playerSide');
         const timerModeSelect = document.getElementById('timerMode');
         const pieceStyleSelect = document.getElementById('pieceStyle');
@@ -554,6 +935,32 @@
         const activeUserDisplay = document.getElementById('activeUser');
         const switchUserBtn = document.getElementById('switchUserBtn');
         const userLabelCard = document.getElementById('userLabel');
+
+        const LEVEL_CONFIG = {
+            'columns': {
+                name: '1: Columns',
+                title: 'Level 1: Columns (a-h)',
+                icon: '♖',
+                promptText: 'Tap Start!',
+                feedbackText: 'Level 1: Find the columns (a–h) fast!'
+            },
+            'full': {
+                name: '2: Full Grid',
+                title: 'Level 2: Full Grid',
+                icon: '♘',
+                promptText: 'Tap Start!',
+                feedbackText: 'Level 2: Find exact 64-square coordinates!'
+            },
+            'attack': {
+                name: '3: Attacks',
+                title: 'Level 3: Attack Detection',
+                icon: '⚔️',
+                promptText: 'Tap Start!',
+                feedbackText: 'Level 3: Detect opponent tactical attacks!'
+            }
+        };
+
+        let currentLevel = 'columns';
 
         const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
@@ -971,7 +1378,7 @@
         }
 
         function getScoreKeySuffix() {
-            const level = gameModeSelect.value;
+            const level = currentLevel;
             const side = playerSideSelect.value;
             const proStatus = proModeCheck.checked ? 'pro' : 'standard';
             const timerSetting = timerModeSelect.value;
@@ -1013,6 +1420,53 @@
             return positivePhrases[Math.floor(Math.random() * positivePhrases.length)];
         }
 
+        function showLevelModal() {
+            if (isPlaying) endGame();
+            if (isReviewMode) exitReview();
+            updateLevelModalHighlight();
+            levelModal.classList.add('active');
+        }
+
+        function closeLevelModal() {
+            levelModal.classList.remove('active');
+        }
+
+        function updateLevelModalHighlight() {
+            document.querySelectorAll('.level-card').forEach(card => {
+                if (card.dataset.level === currentLevel) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        function selectLevel(levelKey, autoClose = true) {
+            if (!LEVEL_CONFIG[levelKey]) return;
+            currentLevel = levelKey;
+            localStorage.setItem('chess_trainer_level', currentLevel);
+
+            if (levelBtnIcon) levelBtnIcon.innerText = LEVEL_CONFIG[levelKey].icon;
+            if (levelBtnText) levelBtnText.innerText = LEVEL_CONFIG[levelKey].name;
+
+            updateLevelModalHighlight();
+
+            if (isPlaying) endGame();
+            if (isReviewMode) exitReview();
+
+            updateHighScoreView();
+
+            if (!isPlaying && !isReviewMode) {
+                promptDisplay.innerText = LEVEL_CONFIG[levelKey].promptText;
+                feedbackDisplay.innerText = LEVEL_CONFIG[levelKey].feedbackText;
+                feedbackDisplay.style.color = '#fff';
+            }
+
+            if (autoClose) {
+                closeLevelModal();
+            }
+        }
+
         function initializeProfiles() {
             const storedUsers = localStorage.getItem('chess_trainer_profiles');
             if (storedUsers) {
@@ -1028,6 +1482,13 @@
                 pieceStyleSelect.value = savedStyle;
             }
             applyPieceStyleTheme();
+
+            const savedLevel = localStorage.getItem('chess_trainer_level');
+            if (savedLevel && LEVEL_CONFIG[savedLevel]) {
+                currentLevel = savedLevel;
+            }
+            selectLevel(currentLevel, false);
+
             populateModalDropdown();
 
             if (!savedProfile) {
@@ -1037,6 +1498,7 @@
             } else {
                 currentUser = allUsers.includes(savedProfile) ? savedProfile : allUsers[0];
                 activeUserDisplay.innerText = currentUser;
+                setTimeout(showLevelModal, 200);
             }
         }
 
@@ -1079,6 +1541,7 @@
             
             userModal.classList.remove('active');
             updateHighScoreView();
+            setTimeout(showLevelModal, 200);
         }
 
         function startGame() {
@@ -1094,7 +1557,7 @@
             isPlaying = true;
             scoreDisplay.innerText = score;
 
-            if (gameModeSelect.value === 'attack') {
+            if (currentLevel === 'attack') {
                 const sideText = playerSideSelect.value.toUpperCase();
                 feedbackDisplay.innerText = `Playing as ${sideText}! Detect opponent attacks on your pieces. (Q=90, R=50, B/N=30, P=10)`;
             } else {
@@ -1159,7 +1622,7 @@
                 feedbackDisplay.style.color = '#aaa';
             }
 
-            if (gameModeSelect.value === 'attack' && timerModeSelect.value !== 'none' && gameHistory.length > 0) {
+            if (currentLevel === 'attack' && timerModeSelect.value !== 'none' && gameHistory.length > 0) {
                 reviewTriggerBtn.style.display = 'inline-block';
             }
             
@@ -1183,7 +1646,7 @@
 
         function nextQuestion() {
             if (!isPlaying) return;
-            const mode = gameModeSelect.value;
+            const mode = currentLevel;
             
             document.querySelectorAll('.square').forEach(sq => sq.innerHTML = '');
 
@@ -1217,7 +1680,7 @@
             const clickedSquare = e.target.closest('.square') || e.target;
             const clickedFile = clickedSquare.dataset.file;
             const clickedCoord = clickedSquare.dataset.coord;
-            const mode = gameModeSelect.value;
+            const mode = currentLevel;
             
             let isCorrect = false;
             let pointsEarned = 10;
@@ -1366,6 +1829,31 @@
         })();
 
         startBtn.addEventListener('click', startGame);
+        levelSelectBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLevelModal();
+        });
+        closeLevelModalBtn.addEventListener('click', closeLevelModal);
+        levelModal.addEventListener('click', (e) => {
+            if (e.target === levelModal) {
+                closeLevelModal();
+            }
+        });
+
+        document.querySelectorAll('.level-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const level = card.dataset.level;
+                selectLevel(level, true);
+            });
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const level = card.dataset.level;
+                    selectLevel(level, true);
+                }
+            });
+        });
+
         switchUserBtn.addEventListener('click', function(e) {
             e.preventDefault();
             showUserModal();
@@ -1387,12 +1875,6 @@
             }
         });
         exitReviewBtn.addEventListener('click', exitReview);
-
-        gameModeSelect.addEventListener('change', () => {
-            if (isReviewMode) exitReview();
-            updateHighScoreView();
-            if(isPlaying) endGame();
-        });
 
         playerSideSelect.addEventListener('change', () => {
             if (isReviewMode) exitReview();
