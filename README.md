@@ -6,9 +6,14 @@ A fun, interactive web-based tool to improve chess coordinate recognition and sp
 
 ## 🎮 Features
 
-- **Two Game Modes:**
-  - **Level 1 (Columns):** Identify specific chess file (column) from a-h
-  - **Level 2 (Full Grid):** Identify exact square coordinates (e.g., e4, h7)
+- **Three Game Levels & Upfront Level Selection:**
+  - **Level 1 (Columns):** ♖ Identify specific chess files (columns) from a–h
+  - **Level 2 (Full Grid):** ♘ Locate exact square coordinates (e.g., e4, h7) across all 64 squares
+  - **Level 3 (Attack Detection):** ⚔️ Detect tactical threats & pieces under attack in realistic legal chess positions
+
+- **Fancy Upfront Level Selector:**
+  - Elegant chess-themed popup with large icons and clear difficulty descriptions
+  - Appears upfront when starting/selecting profile and accessible anytime via the **Level** button in the controls
 
 - **Three Timer Options:**
   - **Untimed:** Practice at your own pace with no time pressure
@@ -50,18 +55,25 @@ When you first launch the game, a profile selection modal appears:
 - **Or create a new profile** by entering a name (up to 12 characters)
 - Click **"Save & Play"** to continue
 
-Your profile persists across browser sessions, so your high scores are saved!
+### Step 3: Choose Your Level Upfront
+A fancy chess-themed Level Selection popup appears:
+- **Level 1: Columns (Files a–h)** — Master vertical files with ease
+- **Level 2: Full Grid (a1–h8)** — Test precision across 64 squares
+- **Level 3: Attack Detection** — Spot threats and high-value captures
+- Tap any level card to immediately set your level and load into the game!
 
-### Step 3: Configure Game Settings
-Before starting, customize your game:
+### Step 4: Configure Game Settings (Optional)
+Customize your game settings in the top bar:
 
 | Setting | Options | Effect |
 |---------|---------|--------|
-| **Level** | Columns / Full Grid | Columns = easier (files only), Full Grid = harder (exact coordinates) |
+| **Level** | Columns / Full Grid / Attack Detection | Tap the Level button anytime to switch levels via the fancy popup |
+| **Side** | White / Black | Play as White or Black perspective |
 | **Timer** | Untimed / 30s / 60s | No timer for practice, or speed challenges |
+| **Style** | Classic Vector / Outline / Minimal / High Contrast | Choose your piece visual theme |
 | **Mode** | Standard / PRO | PRO hides board labels for pure memory |
 
-### Step 4: Click "Start" and Play!
+### Step 5: Click "Start" and Play!
 
 ## 📚 How to Play - Detailed Guide
 
@@ -150,6 +162,7 @@ Your session:
 | **Full Grid** | 2 | Untimed | ⭐⭐ Medium | Learning coordinates |
 | **Full Grid** | 2 | 30s Blitz | ⭐⭐⭐ Hard | Speed & accuracy |
 | **Full Grid + Pro** | 2 | 60s Standard | ⭐⭐⭐ Hard | Advanced memory training |
+| **Attack Detection** | 3 | Untimed / Blitz | ⚔️ Tactical Master | Spotting threats, captures & high-value targets |
 
 ### Recommended Learning Path
 ```
@@ -164,16 +177,18 @@ Full Grid + Untimed (learn exact squares)
          ↓
 Full Grid + 30s Blitz (speed test full board)
          ↓
-Full Grid + Pro + 60s (ultimate challenge!)
+Attack Detection (master tactical vision & threat calculation!)
 ```
 
 ## 🎮 UI Elements Explained
 
 ### Control Panel (Top Section)
-- **Level dropdown:** Choose Columns or Full Grid
-- **Timer dropdown:** Choose Untimed, 30s, or 60s
-- **PRO checkbox:** Toggle board labels on/off
-- **Start button:** Begin a new game
+- **Level Button:** Opens the fancy Level Selection popup with rich icons & mode summaries
+- **Side dropdown:** Choose White or Black board perspective
+- **Timer dropdown:** Choose Untimed, 30s Blitz, or 60s Standard
+- **Style dropdown:** Choose Classic Vector, Sharp Outline, Crisp Minimal, or High Contrast
+- **PRO checkbox:** Toggle coordinate labels on/off
+- **Start button:** Begin a new training session
 
 ### Score Board (Three Cards)
 - **Left card:** Player name (or countdown timer if timer mode active)
