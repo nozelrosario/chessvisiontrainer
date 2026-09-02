@@ -24,10 +24,11 @@ A fun, interactive web-based tool to improve chess coordinate recognition and sp
 
 - **Multi-Profile System:** Create and switch between player profiles, each with independent score tracking
 
-- **Smart Leaderboards:**
-  - Individual high scores per level/mode combination
-  - Live competitive feedback ("You just beat X's record!")
-  - Personal bests and milestone tracking
+- **Interactive Stats & Global Leaderboard Popup:**
+  - Click the **High Score** card anytime to open a comprehensive progress and rankings popup
+  - **Level Mastery Tab:** Detailed breakdown of your personal bests vs global record holders across all levels, Standard vs PRO mode, and Blitz/Standard timers
+  - **Player Rankings Tab:** Hall of Fame leaderboard ranking all profiles by total score and 👑 records held
+  - Overview banner displaying total score, crown count, and competitive rank (🥇 Champion, 🥈 Runner-Up, etc.)
 
 - **Visual Feedback:**
   - Color-coded square highlights for correct/incorrect answers
