@@ -727,6 +727,393 @@
         @keyframes flash-glow { 0% { filter: brightness(1.5); } 100% { filter: brightness(1); } }
         .animate-pop { animation: score-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes score-pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .stat-card.high-score-card {
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid rgba(255, 235, 59, 0.2);
+            position: relative;
+        }
+
+        .stat-card.high-score-card:hover {
+            transform: translateY(-2px);
+            border-color: #ffeb3b;
+            box-shadow: 0 4px 12px rgba(255, 235, 59, 0.25);
+        }
+
+        .stat-card.high-score-card:active {
+            transform: scale(0.98);
+        }
+
+        button.stats-trigger-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);
+            margin-top: 4px;
+            cursor: pointer;
+            padding: 6px var(--label-size);
+            font-size: 12px;
+            border-radius: 4px;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        button.stats-trigger-btn:hover {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        }
+
+        button.stats-trigger-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Stats & Leaderboard Modal */
+        .stats-modal-card {
+            background: linear-gradient(180deg, #282932 0%, #1a1a22 100%);
+            padding: 22px 18px 20px 18px;
+            border-radius: 18px;
+            width: 95%;
+            max-width: 540px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 235, 59, 0.08);
+            border: 1px solid rgba(255, 235, 59, 0.25);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .stats-modal-header {
+            text-align: center;
+            margin-bottom: 14px;
+            padding: 0 15px;
+        }
+
+        .stats-modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ffeb3b, #4caf50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        /* Player Overview Banner */
+        .stats-player-banner {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 235, 59, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-banner-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .player-banner-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffeb3b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .player-banner-rank-pill {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #81c784;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .player-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .player-stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 6px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .player-stat-box-val {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .player-stat-box-lbl {
+            font-size: 10px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* Stats Tabs */
+        .stats-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .stats-tab-btn {
+            flex: 1;
+            background: transparent;
+            color: #aaa;
+            border: none;
+            padding: 7px;
+            font-size: 12.5px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stats-tab-btn.active {
+            background: #444;
+            color: #ffeb3b;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-tab-content {
+            display: none;
+        }
+
+        .stats-tab-content.active {
+            display: block;
+        }
+
+        /* Level Filters */
+        .stats-level-filters {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+        }
+
+        .level-filter-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid #444;
+            color: #ccc;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }
+
+        .level-filter-btn:hover {
+            border-color: #ffeb3b;
+            color: #fff;
+        }
+
+        .level-filter-btn.active {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            border-color: #4caf50;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* Mastery Cards */
+        .stats-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .level-stat-group {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #3d3e48;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .level-stat-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .level-stat-group-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mode-comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .mode-comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mode-stat-col {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mode-stat-col-title {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #ffeb3b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .timer-score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11.5px;
+            padding: 4px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+        }
+
+        .timer-score-row:last-child {
+            border-bottom: none;
+        }
+
+        .timer-label {
+            color: #aaa;
+        }
+
+        .score-tag {
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .score-tag.is-record {
+            color: #ffeb3b;
+        }
+
+        .score-tag.no-score {
+            color: #666;
+            font-weight: normal;
+        }
+
+        .global-rec-hint {
+            font-size: 9.5px;
+            color: #888;
+            margin-top: 1px;
+            text-align: right;
+        }
+
+        /* Leaderboard Rankings Table */
+        .leaderboard-table-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .leaderboard-player-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid #3d3e48;
+            border-radius: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .leaderboard-player-row.is-current-user {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.12);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+        }
+
+        .leaderboard-rank-col {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rank-badge {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 12px;
+            background: #333;
+            color: #aaa;
+        }
+
+        .rank-badge.rank-1 { background: #ffd700; color: #1a1a1a; }
+        .rank-badge.rank-2 { background: #c0c0c0; color: #1a1a1a; }
+        .rank-badge.rank-3 { background: #cd7f32; color: #fff; }
+
+        .player-name-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-row-name {
+            font-weight: 700;
+            font-size: 13.5px;
+            color: #fff;
+        }
+
+        .player-row-records {
+            font-size: 10.5px;
+            color: #aaa;
+        }
+
+        .leaderboard-score-col {
+            text-align: right;
+        }
+
+        .player-total-pts {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffeb3b;
+        }
+
+        .player-total-lbl {
+            font-size: 9.5px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
         .timer-panic { color: var(--penalty-color) !important; animation: pulse-panic 0.8s infinite alternate; }
         @keyframes pulse-panic { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
     </style>
@@ -793,9 +1180,10 @@
             <div class="stat-label">Score</div>
             <div id="score" class="stat-value">0</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-label">High Score</div>
+        <div class="stat-card high-score-card" id="highScoreCard" title="View Player Stats & Leaderboard">
+            <div class="stat-label">High Score 🏆</div>
             <div id="highScore" class="stat-value">0</div>
+            <button id="viewStatsBtn" class="secondary-btn stats-trigger-btn">Leaderboard</button>
         </div>
     </div>
 
@@ -888,6 +1276,42 @@
         </div>
     </div>
 
+    <div id="statsModal" class="modal-overlay">
+        <div class="modal-card stats-modal-card">
+            <button class="modal-close-btn" id="closeStatsModalBtn" title="Close" aria-label="Close Stats & Leaderboard">&times;</button>
+            <div class="stats-modal-header">
+                <div class="header-crown">🏆</div>
+                <h2>Player Stats & Leaderboard</h2>
+                <p class="modal-subtitle">Track your personal records, mode mastery, and competitive standing</p>
+            </div>
+
+            <!-- Player Overview Banner -->
+            <div class="stats-player-banner" id="statsPlayerBanner"></div>
+
+            <!-- Stats Tabs -->
+            <div class="stats-tabs">
+                <button class="stats-tab-btn active" id="tabMasteryBtn" data-tab="mastery">📊 Level Mastery</button>
+                <button class="stats-tab-btn" id="tabLeaderboardBtn" data-tab="leaderboard">👑 Player Rankings</button>
+            </div>
+
+            <!-- Tab 1: Level Mastery Breakdown -->
+            <div id="statsMasteryTab" class="stats-tab-content active">
+                <div class="stats-level-filters" id="statsLevelFilters">
+                    <button class="level-filter-btn active" data-filter="all">All Levels</button>
+                    <button class="level-filter-btn" data-filter="columns">1: Columns</button>
+                    <button class="level-filter-btn" data-filter="full">2: Full Grid</button>
+                    <button class="level-filter-btn" data-filter="attack">3: Attacks</button>
+                </div>
+                <div class="stats-cards-container" id="statsMasteryContainer"></div>
+            </div>
+
+            <!-- Tab 2: Player Rankings Leaderboard -->
+            <div id="statsLeaderboardTab" class="stats-tab-content">
+                <div class="leaderboard-table-container" id="leaderboardContainer"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="userModal" class="modal-overlay">
         <div class="modal-card">
             <h2>Select Profile</h2>
@@ -912,6 +1336,18 @@
         const levelBtnText = document.getElementById('levelBtnText');
         const levelModal = document.getElementById('levelModal');
         const closeLevelModalBtn = document.getElementById('closeLevelModalBtn');
+        const highScoreCard = document.getElementById('highScoreCard');
+        const viewStatsBtn = document.getElementById('viewStatsBtn');
+        const statsModal = document.getElementById('statsModal');
+        const closeStatsModalBtn = document.getElementById('closeStatsModalBtn');
+        const statsPlayerBanner = document.getElementById('statsPlayerBanner');
+        const statsMasteryContainer = document.getElementById('statsMasteryContainer');
+        const leaderboardContainer = document.getElementById('leaderboardContainer');
+        const tabMasteryBtn = document.getElementById('tabMasteryBtn');
+        const tabLeaderboardBtn = document.getElementById('tabLeaderboardBtn');
+        const statsMasteryTab = document.getElementById('statsMasteryTab');
+        const statsLeaderboardTab = document.getElementById('statsLeaderboardTab');
+
         const playerSideSelect = document.getElementById('playerSide');
         const timerModeSelect = document.getElementById('timerMode');
         const pieceStyleSelect = document.getElementById('pieceStyle');
@@ -935,6 +1371,8 @@
         const activeUserDisplay = document.getElementById('activeUser');
         const switchUserBtn = document.getElementById('switchUserBtn');
         const userLabelCard = document.getElementById('userLabel');
+
+        let activeStatsFilter = 'all';
 
         const LEVEL_CONFIG = {
             'columns': {
@@ -1467,6 +1905,213 @@
             }
         }
 
+        const ALL_LEVELS = ['columns', 'full', 'attack'];
+        const ALL_MODES = ['standard', 'pro'];
+        const ALL_TIMERS = [
+            { id: 'none', label: 'Untimed' },
+            { id: '30', label: '30s Blitz' },
+            { id: '60', label: '60s Standard' }
+        ];
+
+        function getBestScoreForCombo(user, lvl, mode, timer) {
+            const wKey = `chess_user_score_${user}_${lvl}_white_${mode}_t${timer}`;
+            const bKey = `chess_user_score_${user}_${lvl}_black_${mode}_t${timer}`;
+            const wScore = parseInt(localStorage.getItem(wKey)) || 0;
+            const bScore = parseInt(localStorage.getItem(bKey)) || 0;
+            return Math.max(wScore, bScore);
+        }
+
+        function getGlobalRecordForCombo(lvl, mode, timer) {
+            let maxScore = 0;
+            let topUser = 'None';
+            allUsers.forEach(u => {
+                const s = getBestScoreForCombo(u, lvl, mode, timer);
+                if (s > maxScore) {
+                    maxScore = s;
+                    topUser = u;
+                }
+            });
+            return { score: maxScore, owner: topUser };
+        }
+
+        function calculateUserStats(user) {
+            let totalScore = 0;
+            let recordsHeld = 0;
+            let categoriesPlayed = 0;
+            let levelTotals = { columns: 0, full: 0, attack: 0 };
+
+            ALL_LEVELS.forEach(lvl => {
+                ALL_MODES.forEach(mode => {
+                    ALL_TIMERS.forEach(t => {
+                        const s = getBestScoreForCombo(user, lvl, mode, t.id);
+                        if (s > 0) {
+                            totalScore += s;
+                            categoriesPlayed++;
+                            levelTotals[lvl] += s;
+                            const globalRec = getGlobalRecordForCombo(lvl, mode, t.id);
+                            if (globalRec.score === s && s > 0) {
+                                recordsHeld++;
+                            }
+                        }
+                    });
+                });
+            });
+
+            return { user, totalScore, recordsHeld, categoriesPlayed, levelTotals };
+        }
+
+        function getRankedUsers() {
+            const list = allUsers.map(u => calculateUserStats(u));
+            list.sort((a, b) => b.totalScore - a.totalScore || b.recordsHeld - a.recordsHeld);
+            return list;
+        }
+
+        function renderStatsModal() {
+            const ranked = getRankedUsers();
+            const userRankIndex = ranked.findIndex(r => r.user === currentUser);
+            const userRank = userRankIndex >= 0 ? userRankIndex + 1 : ranked.length;
+            const currentStats = ranked.find(r => r.user === currentUser) || calculateUserStats(currentUser);
+
+            const rankLabel = userRank === 1 ? '🥇 #1 Champion' : userRank === 2 ? '🥈 #2 Runner-Up' : userRank === 3 ? '🥉 #3 Contender' : `#${userRank} Player`;
+            statsPlayerBanner.innerHTML = `
+                <div class="player-banner-top">
+                    <div class="player-banner-name"><span>👤</span> ${currentUser}</div>
+                    <div class="player-banner-rank-pill">${rankLabel} (${ranked.length} total)</div>
+                </div>
+                <div class="player-stats-grid">
+                    <div class="player-stat-box">
+                        <div class="player-stat-box-val">${currentStats.totalScore}</div>
+                        <div class="player-stat-box-lbl">Total Score</div>
+                    </div>
+                    <div class="player-stat-box">
+                        <div class="player-stat-box-val">${currentStats.recordsHeld} 👑</div>
+                        <div class="player-stat-box-lbl">Top Records</div>
+                    </div>
+                    <div class="player-stat-box">
+                        <div class="player-stat-box-val">${currentStats.categoriesPlayed}/18</div>
+                        <div class="player-stat-box-lbl">Modes Played</div>
+                    </div>
+                </div>
+            `;
+
+            renderMasteryCards();
+            renderLeaderboardRankings(ranked);
+        }
+
+        function renderMasteryCards() {
+            statsMasteryContainer.innerHTML = '';
+            const levelsToRender = activeStatsFilter === 'all' 
+                ? ALL_LEVELS 
+                : ALL_LEVELS.filter(l => l === activeStatsFilter);
+
+            levelsToRender.forEach(lvl => {
+                const config = LEVEL_CONFIG[lvl];
+                const groupEl = document.createElement('div');
+                groupEl.className = 'level-stat-group';
+
+                let modesHtml = '';
+                ALL_MODES.forEach(mode => {
+                    const modeTitle = mode === 'standard' ? 'Standard Mode' : 'PRO Mode ⚡';
+                    let timerRowsHtml = '';
+
+                    ALL_TIMERS.forEach(t => {
+                        const userBest = getBestScoreForCombo(currentUser, lvl, mode, t.id);
+                        const globalRec = getGlobalRecordForCombo(lvl, mode, t.id);
+
+                        let scoreDisplayStr = '';
+                        let isUserRecord = (userBest > 0 && userBest === globalRec.score);
+                        let isOtherRecord = (globalRec.score > userBest);
+
+                        if (userBest > 0) {
+                            scoreDisplayStr = `<span class="score-tag ${isUserRecord ? 'is-record' : ''}">${isUserRecord ? '👑 ' : ''}${userBest} pts</span>`;
+                        } else {
+                            scoreDisplayStr = `<span class="score-tag no-score">Unplayed</span>`;
+                        }
+
+                        let recordHint = '';
+                        if (isUserRecord) {
+                            recordHint = `<div class="global-rec-hint" style="color:#81c784;">🏆 You hold the record!</div>`;
+                        } else if (isOtherRecord) {
+                            const recOwner = globalRec.owner === currentUser ? 'You' : globalRec.owner;
+                            recordHint = `<div class="global-rec-hint">Record: ${globalRec.score} (${recOwner})</div>`;
+                        } else {
+                            recordHint = `<div class="global-rec-hint">No record yet</div>`;
+                        }
+
+                        timerRowsHtml += `
+                            <div class="timer-score-row">
+                                <div class="timer-label">${t.label}</div>
+                                <div style="text-align: right;">
+                                    ${scoreDisplayStr}
+                                    ${recordHint}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    modesHtml += `
+                        <div class="mode-stat-col">
+                            <div class="mode-stat-col-title">
+                                <span>${modeTitle}</span>
+                            </div>
+                            ${timerRowsHtml}
+                        </div>
+                    `;
+                });
+
+                groupEl.innerHTML = `
+                    <div class="level-stat-group-header">
+                        <div class="level-stat-group-title">
+                            <span>${config.icon}</span> ${config.title}
+                        </div>
+                    </div>
+                    <div class="mode-comparison-grid">
+                        ${modesHtml}
+                    </div>
+                `;
+
+                statsMasteryContainer.appendChild(groupEl);
+            });
+        }
+
+        function renderLeaderboardRankings(ranked) {
+            leaderboardContainer.innerHTML = '';
+            ranked.forEach((item, index) => {
+                const rankNum = index + 1;
+                const isCurrent = (item.user === currentUser);
+                const rankBadgeClass = rankNum === 1 ? 'rank-1' : rankNum === 2 ? 'rank-2' : rankNum === 3 ? 'rank-3' : '';
+                const rankBadgeContent = rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : rankNum === 3 ? '🥉' : `${rankNum}`;
+
+                const rowEl = document.createElement('div');
+                rowEl.className = `leaderboard-player-row ${isCurrent ? 'is-current-user' : ''}`;
+                rowEl.innerHTML = `
+                    <div class="leaderboard-rank-col">
+                        <div class="rank-badge ${rankBadgeClass}">${rankBadgeContent}</div>
+                        <div class="player-name-wrap">
+                            <div class="player-row-name">${item.user} ${isCurrent ? '<span style="color:#81c784; font-size:11px;">(You)</span>' : ''}</div>
+                            <div class="player-row-records">${item.recordsHeld} 👑 records • ${item.categoriesPlayed} modes played</div>
+                        </div>
+                    </div>
+                    <div class="leaderboard-score-col">
+                        <div class="player-total-pts">${item.totalScore}</div>
+                        <div class="player-total-lbl">Total Pts</div>
+                    </div>
+                `;
+                leaderboardContainer.appendChild(rowEl);
+            });
+        }
+
+        function showStatsModal() {
+            if (isPlaying) endGame();
+            if (isReviewMode) exitReview();
+            renderStatsModal();
+            statsModal.classList.add('active');
+        }
+
+        function closeStatsModal() {
+            statsModal.classList.remove('active');
+        }
+
         function initializeProfiles() {
             const storedUsers = localStorage.getItem('chess_trainer_profiles');
             if (storedUsers) {
@@ -1851,6 +2496,45 @@
                     const level = card.dataset.level;
                     selectLevel(level, true);
                 }
+            });
+        });
+
+        highScoreCard.addEventListener('click', (e) => {
+            e.preventDefault();
+            showStatsModal();
+        });
+        viewStatsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            showStatsModal();
+        });
+        closeStatsModalBtn.addEventListener('click', closeStatsModal);
+        statsModal.addEventListener('click', (e) => {
+            if (e.target === statsModal) {
+                closeStatsModal();
+            }
+        });
+
+        tabMasteryBtn.addEventListener('click', () => {
+            tabMasteryBtn.classList.add('active');
+            tabLeaderboardBtn.classList.remove('active');
+            statsMasteryTab.classList.add('active');
+            statsLeaderboardTab.classList.remove('active');
+        });
+
+        tabLeaderboardBtn.addEventListener('click', () => {
+            tabLeaderboardBtn.classList.add('active');
+            tabMasteryBtn.classList.remove('active');
+            statsLeaderboardTab.classList.add('active');
+            statsMasteryTab.classList.remove('active');
+        });
+
+        document.querySelectorAll('.level-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.level-filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeStatsFilter = btn.dataset.filter;
+                renderMasteryCards();
             });
         });
 
